@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-btn');
     const playerScoreDisplay = document.getElementById('player-score');
     const computerScoreDisplay = document.getElementById('computer-score');
+    const timerDisplay = document.getElementById('timer-value');
+    const speedDisplay = document.getElementById('speed-value');
+    const watchingKitty = document.querySelector('.watching-kitty');
+    const gameContainer = document.querySelector('.game-container');
     
     // Preload kitty images
     const kittyImages = [
@@ -31,6 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let kittyRotation = 0;
     let kittyScale = 1;
     let kittyDirection = 0.01;
+    
+    // Timer and speed variables
+    let gameTimer = 0;
+    let speedMultiplier = 1;
+    let lastSpeedIncrease = 0;
+    let colorIntensity = 1;
+    let colorBrightness = 0;
+    let timerInterval;
     
     // Particle effects array
     let particles = [];
@@ -124,6 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
             startButton.textContent = 'Restart Game';
             requestAnimationFrame(gameLoop);
             
+            // Start timer
+            startGameTimer();
+            
+            // Add kitty color class
+            gameContainer.classList.add('ultra-colorful');
+            
             // Add flashy effect when starting
             createKittyParticles(canvas.width / 2, canvas.height / 2, 50);
             playMeow();
@@ -131,6 +149,93 @@ document.addEventListener('DOMContentLoaded', () => {
             resetGame();
         }
     });
+    
+    // Start the game timer
+    function startGameTimer() {
+        // Clear any existing interval
+        if (timerInterval) clearInterval(timerInterval);
+        
+        // Reset timer and speed values
+        gameTimer = 0;
+        speedMultiplier = 1;
+        lastSpeedIncrease = 0;
+        colorIntensity = 1;
+        colorBrightness = 0;
+        
+        // Update displays
+        timerDisplay.textContent = gameTimer;
+        speedDisplay.textContent = speedMultiplier.toFixed(1) + 'x';
+        
+        // Set new timer interval - update every second
+        timerInterval = setInterval(() => {
+            if (gameRunning) {
+                // Increment timer
+                gameTimer++;
+                timerDisplay.textContent = gameTimer;
+                
+                // Increase speed every second
+                increaseGameSpeed();
+                
+                // Increase color intensity
+                updateColorIntensity();
+            }
+        }, 1000);
+    }
+    
+    // Increase game speed
+    function increaseGameSpeed() {
+        const oldSpeed = speedMultiplier;
+        
+        // Increase speed multiplier - faster at the beginning, then more gradual
+        if (gameTimer <= 30) {
+            speedMultiplier = 1 + (gameTimer * 0.03); // +3% per second for first 30 seconds
+        } else if (gameTimer <= 60) {
+            speedMultiplier = 1.9 + ((gameTimer - 30) * 0.02); // +2% per second for next 30 seconds
+        } else {
+            speedMultiplier = 2.5 + ((gameTimer - 60) * 0.01); // +1% per second after that
+        }
+        
+        // Cap the maximum speed multiplier
+        speedMultiplier = Math.min(speedMultiplier, 5); // Maximum 5x speed
+        
+        // Update the speed display
+        speedDisplay.textContent = speedMultiplier.toFixed(1) + 'x';
+        
+        // Apply the speed-up pulse effect
+        if (Math.floor(oldSpeed * 10) !== Math.floor(speedMultiplier * 10)) {
+            document.getElementById('game-speed').classList.add('speed-up');
+            setTimeout(() => {
+                document.getElementById('game-speed').classList.remove('speed-up');
+            }, 500);
+        }
+        
+        // Add high-energy shake effect at high speeds
+        if (speedMultiplier >= 3) {
+            canvas.classList.add('high-energy');
+        } else {
+            canvas.classList.remove('high-energy');
+        }
+    }
+    
+    // Update color intensity based on game time
+    function updateColorIntensity() {
+        // Increase color intensity and brightness as time goes on
+        colorIntensity = 1 + (gameTimer * 0.02); // +2% intensity per second
+        colorBrightness = Math.min(gameTimer * 0.01, 1); // Max 100% extra brightness
+        
+        // Add wild color effects at higher speeds
+        if (speedMultiplier >= 2) {
+            // Add a pulsing effect to the color intensity
+            colorIntensity *= 1 + Math.sin(gameTimer * 0.5) * 0.1; // +/- 10% pulsing
+        }
+        
+        // Cap the maximum color intensity
+        colorIntensity = Math.min(colorIntensity, 5); // Maximum 5x intensity
+        
+        // Update CSS variables
+        document.documentElement.style.setProperty('--color-intensity', colorIntensity);
+        document.documentElement.style.setProperty('--color-brightness', colorBrightness);
+    }
     
     // Reset game state
     function resetGame() {
@@ -143,6 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
         particles = [];
         rainbowTrail = [];
         kittyRotation = 0;
+        playerScore = 0;
+        computerScore = 0;
+        playerScoreDisplay.textContent = '0';
+        computerScoreDisplay.textContent = '0';
+        
+        // Reset timer and speed values
+        if (timerInterval) clearInterval(timerInterval);
+        startGameTimer();
         
         // Change kitty
         currentKittyIndex = Math.floor(Math.random() * kittyImages.length);
@@ -204,11 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const updatedParticles = [];
         
         particles.forEach(particle => {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
+            particle.x += particle.vx * speedMultiplier;
+            particle.y += particle.vy * speedMultiplier;
             particle.life--;
             particle.alpha = particle.life / particle.maxLife;
-            particle.rotation += 0.05;
+            particle.rotation += 0.05 * speedMultiplier;
             
             if (particle.life > 0) {
                 updatedParticles.push(particle);
@@ -221,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update star particles
     function updateStars() {
         stars.forEach(star => {
-            star.y += star.speed;
+            star.y += star.speed * speedMultiplier;
             if (star.y > canvas.height) {
                 star.y = 0;
                 star.x = Math.random() * canvas.width;
@@ -234,13 +347,51 @@ document.addEventListener('DOMContentLoaded', () => {
         [playerPaddle, computerPaddle].forEach(paddle => {
             const updatedSparkles = [];
             paddle.sparkles.forEach(sparkle => {
-                sparkle.life--;
+                sparkle.life -= speedMultiplier;
                 if (sparkle.life > 0) {
                     updatedSparkles.push(sparkle);
                 }
             });
             paddle.sparkles = updatedSparkles;
         });
+    }
+    
+    // Update watching kitty's eyes
+    function updateWatchingKitty() {
+        // Remove all direction classes
+        watchingKitty.classList.remove('follow-left', 'follow-right', 'follow-up', 'follow-down');
+        
+        // Get kitty ball position relative to canvas
+        const kittyCenter = {
+            x: kitty.x + kitty.width / 2,
+            y: kitty.y + kitty.height / 2
+        };
+        
+        // Determine eye direction based on ball position
+        if (kittyCenter.x < canvas.width / 3) {
+            watchingKitty.classList.add('follow-left');
+        } else if (kittyCenter.x > canvas.width * 2/3) {
+            watchingKitty.classList.add('follow-right');
+        }
+        
+        if (kittyCenter.y < canvas.height / 3) {
+            watchingKitty.classList.add('follow-up');
+        } else if (kittyCenter.y > canvas.height * 2/3) {
+            watchingKitty.classList.add('follow-down');
+        }
+        
+        // Make watching kitty express excitement at high speeds
+        if (speedMultiplier >= 3) {
+            watchingKitty.querySelector('.kitty-mouth').style.borderRadius = '40% 40% 0 0';
+            watchingKitty.querySelector('.kitty-mouth').style.borderTop = '3px solid #000';
+            watchingKitty.querySelector('.kitty-mouth').style.borderBottom = 'none';
+            watchingKitty.querySelector('.kitty-mouth').style.height = '15px';
+        } else {
+            watchingKitty.querySelector('.kitty-mouth').style.borderRadius = '0 0 40% 40%';
+            watchingKitty.querySelector('.kitty-mouth').style.borderBottom = '3px solid #000';
+            watchingKitty.querySelector('.kitty-mouth').style.borderTop = 'none';
+            watchingKitty.querySelector('.kitty-mouth').style.height = '10px';
+        }
     }
     
     // Draw particles
@@ -354,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update existing points
         rainbowTrail.forEach(point => {
-            point.life--;
+            point.life -= speedMultiplier;
             point.size *= 0.95;
         });
         
@@ -459,10 +610,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Check which keys are pressed
         if ((keys.w || keys.ArrowUp) && playerPaddle.y > 0) {
-            playerPaddle.dy = -playerPaddle.speed;
+            playerPaddle.dy = -playerPaddle.speed * speedMultiplier;
         }
         if ((keys.s || keys.ArrowDown) && playerPaddle.y < canvas.height - playerPaddle.height) {
-            playerPaddle.dy = playerPaddle.speed;
+            playerPaddle.dy = playerPaddle.speed * speedMultiplier;
         }
         
         // Update position
@@ -492,10 +643,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (kitty.dx > 0) {
             // Add some "AI" difficulty - sometimes delay reaction
             if (Math.random() > 0.3) {
+                const difficulty = Math.min(0.9, 0.6 + (gameTimer / 100)); // AI gets slightly better over time
+                
                 if (paddleCenter < kittyCenter - 10) {
-                    computerPaddle.y += computerPaddle.speed;
+                    computerPaddle.y += computerPaddle.speed * speedMultiplier * difficulty;
                 } else if (paddleCenter > kittyCenter + 10) {
-                    computerPaddle.y -= computerPaddle.speed;
+                    computerPaddle.y -= computerPaddle.speed * speedMultiplier * difficulty;
                 }
             }
         }
@@ -516,12 +669,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update kitty position and check collisions
     function updateKitty() {
-        // Move kitty
-        kitty.x += kitty.dx;
-        kitty.y += kitty.dy;
+        // Move kitty with speed multiplier
+        kitty.x += kitty.dx * speedMultiplier;
+        kitty.y += kitty.dy * speedMultiplier;
         
         // Update kitty animation
-        kittyRotation += kitty.dx > 0 ? 0.03 : -0.03;
+        kittyRotation += (kitty.dx > 0 ? 0.03 : -0.03) * speedMultiplier;
         kittyScale += kittyDirection;
         if (kittyScale > 1.1 || kittyScale < 0.9) {
             kittyDirection = -kittyDirection;
@@ -529,6 +682,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update rainbow trail
         updateRainbowTrail();
+        
+        // Update watching kitty's eyes to follow the ball
+        updateWatchingKitty();
         
         // Collision with top and bottom walls
         if (kitty.y <= 0 || kitty.y + kitty.height >= canvas.height) {
@@ -756,6 +912,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Continue game loop
             requestAnimationFrame(gameLoop);
+        } else {
+            // Clean up if game is stopped
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
         }
     }
     

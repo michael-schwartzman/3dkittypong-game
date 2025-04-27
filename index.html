@@ -8,15 +8,44 @@
 </head>
 <body>
     <div class="game-container">
+        <div class="watching-kitty">
+            <div class="kitty-face">
+                <div class="kitty-ears">
+                    <div class="ear left-ear"></div>
+                    <div class="ear right-ear"></div>
+                </div>
+                <div class="kitty-eyes">
+                    <div class="eye left-eye"><div class="pupil"></div></div>
+                    <div class="eye right-eye"><div class="pupil"></div></div>
+                </div>
+                <div class="kitty-nose"></div>
+                <div class="kitty-mouth"></div>
+                <div class="kitty-whiskers">
+                    <div class="whisker whisker1"></div>
+                    <div class="whisker whisker2"></div>
+                    <div class="whisker whisker3"></div>
+                    <div class="whisker whisker4"></div>
+                    <div class="whisker whisker5"></div>
+                    <div class="whisker whisker6"></div>
+                </div>
+            </div>
+        </div>
+        
         <div class="kitty-header">
             <span class="kitty-emoji">🐱</span>
             <h1>KITTY PONG</h1>
             <span class="kitty-emoji">🐱</span>
         </div>
-        <div id="game-score">
-            <div id="player-score">0</div>
-            <div id="computer-score">0</div>
+        
+        <div id="game-stats">
+            <div id="game-score">
+                <div id="player-score">0</div>
+                <div id="computer-score">0</div>
+            </div>
+            <div id="game-timer">Time: <span id="timer-value">0</span>s</div>
+            <div id="game-speed">Speed: <span id="speed-value">1</span>x</div>
         </div>
+        
         <canvas id="pong" width="600" height="400"></canvas>
         <div class="controls">
             <button id="start-btn">Start Game</button>
