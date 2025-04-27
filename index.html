@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitty Pong Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="kitty-header">
+            <span class="kitty-emoji">🐱</span>
+            <h1>KITTY PONG</h1>
+            <span class="kitty-emoji">🐱</span>
+        </div>
+        <div id="game-score">
+            <div id="player-score">0</div>
+            <div id="computer-score">0</div>
+        </div>
+        <canvas id="pong" width="600" height="400"></canvas>
+        <div class="controls">
+            <button id="start-btn">Start Game</button>
+            <p class="instructions">Use W/S or Up/Down arrows to move your paddle</p>
+        </div>
+        <div class="rainbow-border"></div>
+    </div>
+
+    <!-- Hidden preloaded kitty images -->
+    <div style="display:none;">
+        <img id="kitty1" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRkMwQ0IiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDI4YzEuNjY3IDIgMy42NjcgMyA2IDNzNC4zMzMtMSA2LTMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiNGRkMwQ0IiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 1">
+        <img id="kitty2" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNBMEUwRTAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDMwYzEuNjY3LTIgMy42NjctMyA2LTNzNC4zMzMgMSA2IDMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiNBMEUwRTAiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 2">
+        <img id="kitty3" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRkQzMDAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTI1IDMwbDQuNSA1TDI1IDQwbC00LjUtNUwyNSAzMHoiIGZpbGw9IiNGRjU3MjIiLz48cGF0aCBkPSJNMjIgMjhsMyAzIDMtM00zOCAxMGwxMCAtNU0xMiAxMEwyIDUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L2c+PC9zdmc+" alt="Kitty 3">
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
