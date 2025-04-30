@@ -42,14 +42,19 @@
                 <div id="player-score">0</div>
                 <div id="computer-score">0</div>
             </div>
-            <div id="game-timer">Time: <span id="timer-value">0</span>s</div>
-            <div id="game-speed">Speed: <span id="speed-value">1</span>x</div>
         </div>
         
         <canvas id="pong" width="600" height="400"></canvas>
         <div class="controls">
-            <button id="start-btn">Start Game</button>
+            <div class="control-buttons">
+                <button id="start-btn">Start Game</button>
+                <button id="sound-btn" class="sound-on">Sound: ON</button>
+            </div>
             <p class="instructions">Use W/S or Up/Down arrows to move your paddle</p>
+        </div>
+        <div id="game-info-container">
+            <div id="game-timer">Time: <span id="timer-value">0</span>s</div>
+            <div id="game-difficulty">Diffulkitty: <span id="speed-value">1</span>x</div>
         </div>
         <div class="rainbow-border"></div>
     </div>

@@ -36,10 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let kittyScale = 1;
     let kittyDirection = 0.01;
     
-    // Timer and speed variables
+    // Timer and difficulty variables
     let gameTimer = 0;
-    let speedMultiplier = 1;
-    let lastSpeedIncrease = 0;
+    let difficultyMultiplier = 1;
+    let lastDifficultyIncrease = 0;
     let colorIntensity = 1;
     let colorBrightness = 0;
     let timerInterval;
@@ -155,16 +155,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear any existing interval
         if (timerInterval) clearInterval(timerInterval);
         
-        // Reset timer and speed values
+        // Reset timer and difficulty values
         gameTimer = 0;
-        speedMultiplier = 1;
-        lastSpeedIncrease = 0;
+        difficultyMultiplier = 1;
+        lastDifficultyIncrease = 0;
         colorIntensity = 1;
         colorBrightness = 0;
         
         // Update displays
         timerDisplay.textContent = gameTimer;
-        speedDisplay.textContent = speedMultiplier.toFixed(1) + 'x';
+        speedDisplay.textContent = difficultyMultiplier.toFixed(1) + 'x';
         
         // Set new timer interval - update every second
         timerInterval = setInterval(() => {
@@ -173,8 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameTimer++;
                 timerDisplay.textContent = gameTimer;
                 
-                // Increase speed every second
-                increaseGameSpeed();
+                // Increase difficulty every second
+                increaseGameDifficulty();
                 
                 // Increase color intensity
                 updateColorIntensity();
@@ -182,35 +182,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
     
-    // Increase game speed
-    function increaseGameSpeed() {
-        const oldSpeed = speedMultiplier;
+    // Increase game difficulty
+    function increaseGameDifficulty() {
+        const oldDifficulty = difficultyMultiplier;
         
-        // Increase speed multiplier - faster at the beginning, then more gradual
+        // Increase difficulty multiplier - faster at the beginning, then more gradual
         if (gameTimer <= 30) {
-            speedMultiplier = 1 + (gameTimer * 0.03); // +3% per second for first 30 seconds
+            difficultyMultiplier = 1 + (gameTimer * 0.03); // +3% per second for first 30 seconds
         } else if (gameTimer <= 60) {
-            speedMultiplier = 1.9 + ((gameTimer - 30) * 0.02); // +2% per second for next 30 seconds
+            difficultyMultiplier = 1.9 + ((gameTimer - 30) * 0.02); // +2% per second for next 30 seconds
         } else {
-            speedMultiplier = 2.5 + ((gameTimer - 60) * 0.01); // +1% per second after that
+            difficultyMultiplier = 2.5 + ((gameTimer - 60) * 0.01); // +1% per second after that
         }
         
-        // Cap the maximum speed multiplier
-        speedMultiplier = Math.min(speedMultiplier, 5); // Maximum 5x speed
+        // Cap the maximum difficulty multiplier
+        difficultyMultiplier = Math.min(difficultyMultiplier, 5); // Maximum 5x difficulty
         
-        // Update the speed display
-        speedDisplay.textContent = speedMultiplier.toFixed(1) + 'x';
+        // Update the difficulty display
+        speedDisplay.textContent = difficultyMultiplier.toFixed(1) + 'x';
         
-        // Apply the speed-up pulse effect
-        if (Math.floor(oldSpeed * 10) !== Math.floor(speedMultiplier * 10)) {
-            document.getElementById('game-speed').classList.add('speed-up');
+        // Apply the difficulty-up pulse effect
+        if (Math.floor(oldDifficulty * 10) !== Math.floor(difficultyMultiplier * 10)) {
+            document.getElementById('game-difficulty').classList.add('speed-up');
             setTimeout(() => {
-                document.getElementById('game-speed').classList.remove('speed-up');
+                document.getElementById('game-difficulty').classList.remove('speed-up');
             }, 500);
         }
         
-        // Add high-energy shake effect at high speeds
-        if (speedMultiplier >= 3) {
+        // Add high-energy shake effect at high difficulties
+        if (difficultyMultiplier >= 3) {
             canvas.classList.add('high-energy');
         } else {
             canvas.classList.remove('high-energy');
@@ -223,8 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
         colorIntensity = 1 + (gameTimer * 0.02); // +2% intensity per second
         colorBrightness = Math.min(gameTimer * 0.01, 1); // Max 100% extra brightness
         
-        // Add wild color effects at higher speeds
-        if (speedMultiplier >= 2) {
+        // Add wild color effects at higher difficulties
+        if (difficultyMultiplier >= 2) {
             // Add a pulsing effect to the color intensity
             colorIntensity *= 1 + Math.sin(gameTimer * 0.5) * 0.1; // +/- 10% pulsing
         }
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playerScoreDisplay.textContent = '0';
         computerScoreDisplay.textContent = '0';
         
-        // Reset timer and speed values
+        // Reset timer and difficulty values
         if (timerInterval) clearInterval(timerInterval);
         startGameTimer();
         
@@ -317,11 +317,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const updatedParticles = [];
         
         particles.forEach(particle => {
-            particle.x += particle.vx * speedMultiplier;
-            particle.y += particle.vy * speedMultiplier;
+            particle.x += particle.vx * difficultyMultiplier;
+            particle.y += particle.vy * difficultyMultiplier;
             particle.life--;
             particle.alpha = particle.life / particle.maxLife;
-            particle.rotation += 0.05 * speedMultiplier;
+            particle.rotation += 0.05 * difficultyMultiplier;
             
             if (particle.life > 0) {
                 updatedParticles.push(particle);
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update star particles
     function updateStars() {
         stars.forEach(star => {
-            star.y += star.speed * speedMultiplier;
+            star.y += star.speed * difficultyMultiplier;
             if (star.y > canvas.height) {
                 star.y = 0;
                 star.x = Math.random() * canvas.width;
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         [playerPaddle, computerPaddle].forEach(paddle => {
             const updatedSparkles = [];
             paddle.sparkles.forEach(sparkle => {
-                sparkle.life -= speedMultiplier;
+                sparkle.life -= difficultyMultiplier;
                 if (sparkle.life > 0) {
                     updatedSparkles.push(sparkle);
                 }
@@ -380,8 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
             watchingKitty.classList.add('follow-down');
         }
         
-        // Make watching kitty express excitement at high speeds
-        if (speedMultiplier >= 3) {
+        // Make watching kitty express excitement at high difficulties
+        if (difficultyMultiplier >= 3) {
             watchingKitty.querySelector('.kitty-mouth').style.borderRadius = '40% 40% 0 0';
             watchingKitty.querySelector('.kitty-mouth').style.borderTop = '3px solid #000';
             watchingKitty.querySelector('.kitty-mouth').style.borderBottom = 'none';
@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update existing points
         rainbowTrail.forEach(point => {
-            point.life -= speedMultiplier;
+            point.life -= difficultyMultiplier;
             point.size *= 0.95;
         });
         
@@ -610,10 +610,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Check which keys are pressed
         if ((keys.w || keys.ArrowUp) && playerPaddle.y > 0) {
-            playerPaddle.dy = -playerPaddle.speed * speedMultiplier;
+            playerPaddle.dy = -playerPaddle.speed * difficultyMultiplier;
         }
         if ((keys.s || keys.ArrowDown) && playerPaddle.y < canvas.height - playerPaddle.height) {
-            playerPaddle.dy = playerPaddle.speed * speedMultiplier;
+            playerPaddle.dy = playerPaddle.speed * difficultyMultiplier;
         }
         
         // Update position
@@ -646,9 +646,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const difficulty = Math.min(0.9, 0.6 + (gameTimer / 100)); // AI gets slightly better over time
                 
                 if (paddleCenter < kittyCenter - 10) {
-                    computerPaddle.y += computerPaddle.speed * speedMultiplier * difficulty;
+                    computerPaddle.y += computerPaddle.speed * difficultyMultiplier * difficulty;
                 } else if (paddleCenter > kittyCenter + 10) {
-                    computerPaddle.y -= computerPaddle.speed * speedMultiplier * difficulty;
+                    computerPaddle.y -= computerPaddle.speed * difficultyMultiplier * difficulty;
                 }
             }
         }
@@ -669,12 +669,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update kitty position and check collisions
     function updateKitty() {
-        // Move kitty with speed multiplier
-        kitty.x += kitty.dx * speedMultiplier;
-        kitty.y += kitty.dy * speedMultiplier;
+        // Move kitty with difficulty multiplier
+        kitty.x += kitty.dx * difficultyMultiplier;
+        kitty.y += kitty.dy * difficultyMultiplier;
         
         // Update kitty animation
-        kittyRotation += (kitty.dx > 0 ? 0.03 : -0.03) * speedMultiplier;
+        kittyRotation += (kitty.dx > 0 ? 0.03 : -0.03) * difficultyMultiplier;
         kittyScale += kittyDirection;
         if (kittyScale > 1.1 || kittyScale < 0.9) {
             kittyDirection = -kittyDirection;

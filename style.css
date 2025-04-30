@@ -422,7 +422,8 @@ button:hover::after {
     flex: 2;
 }
 
-#game-timer, #game-speed {
+/* Update the game difficulty (formerly speed) and timer styles */
+#game-difficulty {
     padding: 5px 10px;
     border-radius: 8px;
     background-color: rgba(157, 78, 221, 0.3);
@@ -431,6 +432,25 @@ button:hover::after {
     margin: 0 5px;
     flex: 1;
     transition: background-color 0.5s;
+    font-weight: bold;
+}
+
+#game-timer-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+#game-timer {
+    padding: 3px 8px;
+    border-radius: 8px;
+    background-color: rgba(157, 78, 221, 0.2);
+    border: 1px solid #9d4edd;
+    text-align: center;
+    font-size: 12px;
+    transition: background-color 0.5s;
+    margin-bottom: 5px;
 }
 
 #player-score, #computer-score {
@@ -493,115 +513,70 @@ canvas {
     100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 0, 0, 0.7); }
 }
 
-.controls {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-button {
-    background: linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc);
-    background-size: 300% 300%;
-    animation: button-bg 3s ease infinite;
-    border: none;
-    color: white;
-    padding: 12px 24px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 18px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 50px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
-    transition: transform 0.2s, box-shadow 0.2s;
-    position: relative;
-    overflow: hidden;
-}
-
-@keyframes button-bg {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(157, 78, 221, 0.8);
-}
-
-button:hover::before {
-    content: "😺";
-    position: absolute;
-    font-size: 20px;
-    left: 10px;
-}
-
-button:hover::after {
-    content: "😺";
-    position: absolute;
-    font-size: 20px;
-    right: 10px;
-}
-
-.instructions {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #fff;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
-}
-
-.score-update {
-    animation: pulse 0.5s ease-in-out;
-    color: #ffff00 !important;
-    text-shadow: 0 0 15px #ffff00 !important;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-/* Color intensity animations - these will be controlled via JS */
-.ultra-colorful .rainbow-border {
-    filter: saturate(var(--color-intensity, 1)) brightness(var(--color-brightness, 1));
-    box-shadow: 0 0 calc(20px * var(--color-intensity, 1)) rgba(255, 0, 255, 0.8);
-}
-
-.ultra-colorful canvas {
-    filter: saturate(var(--color-intensity, 1));
-}
-
-.high-energy {
-    animation: shake 0.1s infinite alternate;
-}
-
-@keyframes shake {
-    from { transform: translateX(-1px); }
-    to { transform: translateX(1px); }
-}
-
-/* Speed indicator pulse */
-@keyframes speed-pulse {
+/* Difficulty indicator pulse (formerly speed-pulse) */
+@keyframes difficulty-pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); background-color: rgba(255, 0, 0, 0.5); }
     100% { transform: scale(1); }
 }
 
 .speed-up {
-    animation: speed-pulse 0.5s;
+    animation: difficulty-pulse 0.5s;
 }
 
-/* Kitty intensity changes */
-.ultra-colorful .kitty-face {
-    background-color: hsl(330, calc(100% * var(--color-intensity, 1)), calc(70% + 10% * var(--color-brightness, 1)));
+/* Sound button styles */
+.control-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
 }
 
-.ultra-colorful .ear {
-    border-bottom-color: hsl(330, calc(100% * var(--color-intensity, 1)), calc(70% + 10% * var(--color-brightness, 1)));
+#sound-btn {
+    background: linear-gradient(45deg, #ff8800, #ff00cc, #8800ff);
+    background-size: 300% 300%;
+    animation: button-bg 3s ease infinite;
+    padding: 12px 18px;
+    font-size: 16px;
+}
+
+#sound-btn.sound-off {
+    background: linear-gradient(45deg, #888888, #555555, #333333);
+    background-size: 300% 300%;
+    animation: button-bg 3s ease infinite 0.5s;
+    opacity: 0.8;
+}
+
+#sound-btn:hover::before,
+#sound-btn:hover::after {
+    content: "🔊";
+}
+
+#sound-btn.sound-off:hover::before,
+#sound-btn.sound-off:hover::after {
+    content: "🔇";
+}
+
+/* Update the game info container styles */
+#game-info-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+#game-timer, #game-difficulty {
+    padding: 3px 8px;
+    border-radius: 8px;
+    background-color: rgba(157, 78, 221, 0.2);
+    border: 1px solid #9d4edd;
+    text-align: center;
+    font-size: 12px;
+    transition: background-color 0.5s;
+    margin-bottom: 5px;
+    flex: 1;  /* Make both elements take equal space */
+    max-width: 45%;  /* Prevent them from getting too wide */
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Prevent overflow */
+    text-overflow: ellipsis; /* Add ellipsis if text overflows */
 }
