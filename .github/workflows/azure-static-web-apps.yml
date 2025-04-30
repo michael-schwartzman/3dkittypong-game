@@ -27,7 +27,7 @@ jobs:
           action: "upload"
           app_location: "/" # Root directory of the project
           api_location: "" # No API in this project
-          output_location: "" # No build output directory since this is just static HTML/JS/CSS
+          output_location: "" # No build output directory since this is just static HTML/JS/CSS files
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
