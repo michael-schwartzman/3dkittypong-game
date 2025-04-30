@@ -12,9 +12,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const touchUpBtn = document.querySelector('.touch-up');
     const touchDownBtn = document.querySelector('.touch-down');
     
-    // Set canvas dimensions for responsive design
-    let canvasRatio = canvas.height / canvas.width;
+    // Mouse and touch control variables
+    let isMouseControlActive = false;
+    let lastTouchY = 0;
+    let isTouchActive = false;
+    let mousePaddleTarget = null;
+    
+    // Original canvas dimensions
+    const ORIGINAL_WIDTH = canvas.width;
+    const ORIGINAL_HEIGHT = canvas.height;
+    let canvasRatio = ORIGINAL_HEIGHT / ORIGINAL_WIDTH;
     let isMobileDevice = window.innerWidth < 768;
+    
+    // Audio context for iOS compatibility
+    let audioContext = null;
+    
+    // Initialize audio context on first user interaction for iOS
+    function initAudioContext() {
+        if (!audioContext) {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Create and play a silent buffer to unlock audio on iOS
+                const buffer = audioContext.createBuffer(1, 1, 22050);
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+                source.start(0);
+            } catch (e) {
+                console.log("Audio context initialization failed, but that's okay!");
+            }
+        }
+    }
+    
+    // Handle user interaction to initialize audio
+    [startButton, canvas, touchUpBtn, touchDownBtn].forEach(el => {
+        el.addEventListener('touchstart', initAudioContext, { once: true });
+        el.addEventListener('click', initAudioContext, { once: true });
+    });
     
     // Resize canvas for responsive design
     function resizeCanvas() {
@@ -28,17 +62,25 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update canvas display size (CSS)
             canvas.style.width = newWidth + 'px';
             canvas.style.height = newHeight + 'px';
+            
+            // Store scale factors for coordinate system adjustment
+            window.scaleX = ORIGINAL_WIDTH / newWidth;
+            window.scaleY = ORIGINAL_HEIGHT / newHeight;
         } else {
             // Reset to original size on desktop
             canvas.style.width = '';
             canvas.style.height = '';
+            window.scaleX = 1;
+            window.scaleY = 1;
         }
     }
     
-    // Call resize on page load and when window is resized
+    // Call resize on page load and when window is resized or orientation changes
     resizeCanvas();
-    window.addEventListener('resize', () => {
-        resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', () => {
+        // Short delay to ensure new dimensions are available
+        setTimeout(resizeCanvas, 100);
     });
     
     // Sound toggle functionality
@@ -58,44 +100,141 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Mobile touch controls
+    // Enhanced mouse control implementation
+    canvas.addEventListener('mousemove', (e) => {
+        if (gameRunning) {
+            isMouseControlActive = true;
+            const canvasRect = canvas.getBoundingClientRect();
+            const mouseY = e.clientY - canvasRect.top;
+            
+            // Convert mouse position to canvas coordinates
+            const canvasY = (mouseY / canvasRect.height) * ORIGINAL_HEIGHT;
+            
+            // Set target position for smooth movement
+            mousePaddleTarget = canvasY - (playerPaddle.height / 2);
+        }
+    });
+    
+    canvas.addEventListener('mouseenter', () => {
+        isMouseControlActive = true;
+    });
+    
+    canvas.addEventListener('mouseleave', () => {
+        isMouseControlActive = false;
+        mousePaddleTarget = null;
+    });
+    
+    // Enhanced touch controls - direct canvas touch
+    canvas.addEventListener('touchstart', (e) => {
+        if (gameRunning) {
+            e.preventDefault();
+            isTouchActive = true;
+            const touch = e.touches[0];
+            const canvasRect = canvas.getBoundingClientRect();
+            lastTouchY = touch.clientY - canvasRect.top;
+            
+            // Convert touch position to canvas coordinates
+            const canvasY = (lastTouchY / canvasRect.height) * ORIGINAL_HEIGHT;
+            
+            // Set paddle position directly
+            mousePaddleTarget = canvasY - (playerPaddle.height / 2);
+        }
+    }, { passive: false });
+    
+    canvas.addEventListener('touchmove', (e) => {
+        if (gameRunning && isTouchActive) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const canvasRect = canvas.getBoundingClientRect();
+            lastTouchY = touch.clientY - canvasRect.top;
+            
+            // Convert touch position to canvas coordinates
+            const canvasY = (lastTouchY / canvasRect.height) * ORIGINAL_HEIGHT;
+            
+            // Set paddle position directly
+            mousePaddleTarget = canvasY - (playerPaddle.height / 2);
+        }
+    }, { passive: false });
+    
+    canvas.addEventListener('touchend', () => {
+        isTouchActive = false;
+    });
+    
+    canvas.addEventListener('touchcancel', () => {
+        isTouchActive = false;
+    });
+    
+    // Mobile touch controls - enhanced for better responsiveness
     let touchUpActive = false;
     let touchDownActive = false;
     
-    // Touch event handlers for up button
-    touchUpBtn.addEventListener('touchstart', (e) => {
+    // Use a single function for touch handlers to improve consistency
+    function handleTouchStart(e, direction) {
         e.preventDefault(); // Prevent scrolling
-        touchUpActive = true;
-    });
+        if (direction === 'up') {
+            touchUpActive = true;
+            touchDownActive = false; // Ensure only one direction is active
+        } else {
+            touchDownActive = true;
+            touchUpActive = false; // Ensure only one direction is active
+        }
+    }
     
-    touchUpBtn.addEventListener('touchend', () => {
+    function handleTouchEnd() {
         touchUpActive = false;
-    });
+        touchDownActive = false;
+    }
     
-    touchUpBtn.addEventListener('touchcancel', () => {
-        touchUpActive = false;
-    });
+    // Touch event handlers for up button
+    touchUpBtn.addEventListener('touchstart', (e) => handleTouchStart(e, 'up'));
+    touchUpBtn.addEventListener('touchend', handleTouchEnd);
+    touchUpBtn.addEventListener('touchcancel', handleTouchEnd);
     
     // Touch event handlers for down button
-    touchDownBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Prevent scrolling
-        touchDownActive = true;
-    });
+    touchDownBtn.addEventListener('touchstart', (e) => handleTouchStart(e, 'down'));
+    touchDownBtn.addEventListener('touchend', handleTouchEnd);
+    touchDownBtn.addEventListener('touchcancel', handleTouchEnd);
     
-    touchDownBtn.addEventListener('touchend', () => {
-        touchDownActive = false;
-    });
+    // Add active state for visual feedback
+    touchUpBtn.addEventListener('touchstart', () => touchUpBtn.classList.add('active'));
+    touchUpBtn.addEventListener('touchend', () => touchUpBtn.classList.remove('active'));
+    touchUpBtn.addEventListener('touchcancel', () => touchUpBtn.classList.remove('active'));
     
-    touchDownBtn.addEventListener('touchcancel', () => {
-        touchDownActive = false;
-    });
+    touchDownBtn.addEventListener('touchstart', () => touchDownBtn.classList.add('active'));
+    touchDownBtn.addEventListener('touchend', () => touchDownBtn.classList.remove('active'));
+    touchDownBtn.addEventListener('touchcancel', () => touchDownBtn.classList.remove('active'));
     
     // Prevent default touchmove behavior to avoid scrolling while playing
     canvas.addEventListener('touchmove', (e) => {
         e.preventDefault();
     }, { passive: false });
     
+    // Handle direct touch on canvas for paddle control
+    canvas.addEventListener('touchmove', (e) => {
+        if (gameRunning && e.touches.length > 0) {
+            // Get canvas bounds
+            const canvasRect = canvas.getBoundingClientRect();
+            const touchY = e.touches[0].clientY - canvasRect.top;
+            
+            // Convert touch position to canvas coordinates
+            const canvasY = (touchY / canvasRect.height) * ORIGINAL_HEIGHT;
+            
+            // Move paddle to touch position (with smoothing)
+            const targetY = canvasY - (playerPaddle.height / 2);
+            playerPaddle.y = targetY;
+            
+            // Keep paddle within canvas bounds
+            if (playerPaddle.y < 0) {
+                playerPaddle.y = 0;
+            }
+            if (playerPaddle.y > canvas.height - playerPaddle.height) {
+                playerPaddle.y = canvas.height - playerPaddle.height;
+            }
+        }
+    }, { passive: false });
+    
     // Prevent double tap to zoom
+    let lastTap = 0;
     document.addEventListener('touchend', (e) => {
         const now = Date.now();
         const DOUBLE_TAP_DELAY = 300;
@@ -104,8 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         lastTap = now;
     }, { passive: false });
-    
-    let lastTap = 0;
     
     // Preload kitty images
     const kittyImages = [
@@ -358,15 +495,26 @@ document.addEventListener('DOMContentLoaded', () => {
         currentKittyIndex = Math.floor(Math.random() * kittyImages.length);
     }
     
-    // Play random meow sound - modified to check if sound is enabled
+    // Play random meow sound - modified for iOS compatibility
     function playMeow() {
         if (!soundEnabled) return;
         
         try {
+            // Initialize audio context if not already done
+            initAudioContext();
+            
             const audio = new Audio();
             audio.volume = 0.3;
             audio.src = meowSounds[Math.floor(Math.random() * meowSounds.length)];
-            audio.play();
+            
+            // Promise-based play for iOS
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Meow couldn't play, but that's okay!");
+                });
+            }
         } catch (e) {
             console.log("Meow couldn't play, but that's okay!");
         }
@@ -702,16 +850,23 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.restore();
     }
     
-    // Update player paddle position - modified for touch controls
+    // Update player paddle position - modified for touch, mouse and key controls
     function updatePlayerPaddle() {
         // Reset dy
         playerPaddle.dy = 0;
         
-        // Check which keys are pressed or touch controls are active
-        if ((keys.w || keys.ArrowUp || touchUpActive) && playerPaddle.y > 0) {
-            playerPaddle.dy = -playerPaddle.speed * difficultyMultiplier;
+        // Handle mouse/touch control - with smooth movement
+        if (mousePaddleTarget !== null) {
+            // Add smooth movement towards the target
+            const diff = mousePaddleTarget - playerPaddle.y;
+            const smoothing = 0.3; // Lower for smoother but slower movement
+            playerPaddle.dy = diff * smoothing * difficultyMultiplier;
         }
-        if ((keys.s || keys.ArrowDown || touchDownActive) && playerPaddle.y < canvas.height - playerPaddle.height) {
+        // If no mouse/touch control active, use keyboard
+        else if ((keys.w || keys.ArrowUp || touchUpActive) && playerPaddle.y > 0) {
+            playerPaddle.dy = -playerPaddle.speed * difficultyMultiplier;
+        } 
+        else if ((keys.s || keys.ArrowDown || touchDownActive) && playerPaddle.y < canvas.height - playerPaddle.height) {
             playerPaddle.dy = playerPaddle.speed * difficultyMultiplier;
         }
         
@@ -911,48 +1066,50 @@ document.addEventListener('DOMContentLoaded', () => {
         currentKittyIndex = Math.floor(Math.random() * kittyImages.length);
     }
     
-    // Sound effects - modified to check if sound is enabled
+    // Sound effects - modified to use the initialized audio context
     function playSound(type) {
         if (!soundEnabled) return;
         
         // Use Web Audio API for sound effects
         try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            // Use the previously initialized audioContext or create a new one
+            const context = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+            if (!audioContext) audioContext = context;
             
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+            const oscillator = context.createOscillator();
+            const gainNode = context.createGain();
             
             oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+            gainNode.connect(context.destination);
             
             // Different sounds for different events
             switch(type) {
                 case 'paddle':
                     oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.1);
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.frequency.setValueAtTime(880, context.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(440, context.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
                     oscillator.start();
-                    oscillator.stop(audioContext.currentTime + 0.1);
+                    oscillator.stop(context.currentTime + 0.1);
                     break;
                 case 'wall':
                     oscillator.type = 'triangle';
-                    oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.05);
-                    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    oscillator.frequency.setValueAtTime(220, context.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(110, context.currentTime + 0.05);
+                    gainNode.gain.setValueAtTime(0.08, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.05);
                     oscillator.start();
-                    oscillator.stop(audioContext.currentTime + 0.05);
+                    oscillator.stop(context.currentTime + 0.05);
                     break;
                 case 'score':
                     oscillator.type = 'sawtooth';
-                    oscillator.frequency.setValueAtTime(110, audioContext.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.15);
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    oscillator.frequency.setValueAtTime(110, context.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(880, context.currentTime + 0.15);
+                    gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.15);
                     oscillator.start();
-                    oscillator.stop(audioContext.currentTime + 0.15);
+                    oscillator.stop(context.currentTime + 0.15);
                     break;
             }
         } catch (e) {

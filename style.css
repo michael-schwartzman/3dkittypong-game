@@ -157,6 +157,12 @@ canvas {
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(157, 78, 221, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.7);
     animation: border-pulse 2s infinite alternate;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+canvas:hover {
+    box-shadow: 0 0 25px rgba(157, 78, 221, 0.9), inset 0 0 35px rgba(0, 0, 0, 0.8);
 }
 
 @keyframes border-pulse {
@@ -588,7 +594,13 @@ canvas {
 @media (max-width: 768px) {
     body {
         align-items: flex-start;
-        padding-top: 10px;
+        padding-top: 5px; 
+        height: 100%;
+        min-height: 100vh;
+        /* Fix iOS overscroll behavior */
+        position: fixed;
+        width: 100%;
+        overflow: hidden;
     }
     
     .game-container {
@@ -596,6 +608,7 @@ canvas {
         padding-top: 110px;
         width: 95%;
         max-width: 95vw;
+        margin: 0 auto;
     }
     
     .kitty-header h1 {
@@ -608,17 +621,22 @@ canvas {
     
     #game-score {
         margin-bottom: 5px;
+        font-size: 28px;
     }
     
     canvas {
         width: 100%;
         height: auto;
-        max-height: 70vh;
+        max-height: 60vh;
+        touch-action: none;
     }
     
     button {
-        padding: 10px 16px;
+        padding: 12px 20px;
         font-size: 16px;
+        /* Increase tap target for mobile */
+        min-height: 44px;
+        min-width: 44px;
     }
     
     .touch-controls {
@@ -632,9 +650,68 @@ canvas {
         display: inline;
     }
     
+    .mouse-instructions {
+        display: none;
+    }
+    
     .watching-kitty {
         top: -50px;
         transform: translateX(-50%) scale(0.8);
+    }
+    
+    #game-timer, #game-difficulty {
+        font-size: 14px;
+        padding: 5px 10px;
+    }
+    
+    /* Make the sound button more tappable */
+    #sound-btn {
+        min-width: 110px;
+    }
+    
+    /* Fix for iOS Safari viewport issues */
+    @supports (-webkit-touch-callout: none) {
+        /* iOS specific CSS */
+        body {
+            height: -webkit-fill-available;
+        }
+        
+        /* Fix up and down buttons for iOS */
+        .touch-zone {
+            -webkit-tap-highlight-color: transparent;
+        }
+    }
+}
+
+/* Mouse and touch instruction display */
+@media (min-width: 769px) {
+    .touch-controls {
+        display: none;
+    }
+    
+    .mobile-instructions {
+        display: none;
+    }
+    
+    .mouse-instructions {
+        display: inline;
+    }
+}
+
+@media (max-width: 768px) {
+    .touch-controls {
+        display: flex;
+        width: 100%;
+        height: 80px;
+        margin-top: 10px;
+    }
+    
+    .mobile-instructions {
+        display: inline;
+    }
+    
+    .mouse-instructions {
+        display: none;
     }
 }
 
@@ -652,15 +729,17 @@ canvas {
 .touch-controls {
     position: relative;
     justify-content: space-between;
+    margin-bottom: 15px;
 }
 
 .touch-zone {
     width: 48%;
     height: 100%;
-    border-radius: 12px;
-    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    background-color: rgba(255, 255, 255, 0.15);
     position: relative;
     overflow: hidden;
+    transition: all 0.2s ease;
 }
 
 .touch-zone:after {
@@ -671,28 +750,52 @@ canvas {
     transform: translate(-50%, -50%);
     width: 0;
     height: 0;
+    transition: all 0.2s ease;
 }
 
 .touch-up:after {
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-bottom: 25px solid rgba(255, 255, 255, 0.6);
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-bottom: 30px solid rgba(255, 255, 255, 0.6);
 }
 
 .touch-down:after {
-    border-left: 15px solid transparent;
-    border-right: 15px solid transparent;
-    border-top: 25px solid rgba(255, 255, 255, 0.6);
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top: 30px solid rgba(255, 255, 255, 0.6);
 }
 
-.touch-zone:active {
-    background-color: rgba(255, 255, 255, 0.2);
+.touch-zone.active {
+    background-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+    transform: scale(1.05);
 }
 
-.touch-up:active:after {
+.touch-up.active:after {
     border-bottom-color: rgba(0, 204, 255, 0.8);
+    transform: translate(-50%, -60%);
 }
 
-.touch-down:active:after {
+.touch-down.active:after {
     border-top-color: rgba(0, 204, 255, 0.8);
+    transform: translate(-50%, -40%);
+}
+
+/* High energy animation for increased difficulty */
+@keyframes high-energy-shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-2px, 0px) rotate(1deg); }
+    30% { transform: translate(2px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-2px, 1px) rotate(0deg); }
+    70% { transform: translate(2px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.high-energy {
+    animation: high-energy-shake 0.5s infinite;
 }
