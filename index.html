@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Kitty Pong Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -51,12 +53,19 @@
                 <button id="start-btn">Start Game</button>
                 <button id="sound-btn" class="sound-on">Sound: ON</button>
             </div>
-            <p class="instructions">Use W/S or Up/Down arrows to move your paddle</p>
+            <p class="instructions">Use W/S or Up/Down arrows to move your paddle<span class="mobile-instructions"> or touch the screen to control</span></p>
         </div>
         <div id="game-info-container">
             <div id="game-timer">Time: <span id="timer-value">0</span>s</div>
             <div id="game-difficulty">Diffulkitty: <span id="speed-value">1</span>x</div>
         </div>
+        
+        <!-- Mobile touch controls -->
+        <div class="touch-controls">
+            <div class="touch-zone touch-up"></div>
+            <div class="touch-zone touch-down"></div>
+        </div>
+        
         <div class="rainbow-border"></div>
     </div>
 

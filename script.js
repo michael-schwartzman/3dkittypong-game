@@ -9,6 +9,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const speedDisplay = document.getElementById('speed-value');
     const watchingKitty = document.querySelector('.watching-kitty');
     const gameContainer = document.querySelector('.game-container');
+    const touchUpBtn = document.querySelector('.touch-up');
+    const touchDownBtn = document.querySelector('.touch-down');
+    
+    // Set canvas dimensions for responsive design
+    let canvasRatio = canvas.height / canvas.width;
+    let isMobileDevice = window.innerWidth < 768;
+    
+    // Resize canvas for responsive design
+    function resizeCanvas() {
+        isMobileDevice = window.innerWidth < 768;
+        
+        if (isMobileDevice) {
+            const containerWidth = gameContainer.clientWidth - 20; // Account for padding
+            const newWidth = Math.min(containerWidth, window.innerWidth * 0.95);
+            const newHeight = newWidth * canvasRatio;
+            
+            // Update canvas display size (CSS)
+            canvas.style.width = newWidth + 'px';
+            canvas.style.height = newHeight + 'px';
+        } else {
+            // Reset to original size on desktop
+            canvas.style.width = '';
+            canvas.style.height = '';
+        }
+    }
+    
+    // Call resize on page load and when window is resized
+    resizeCanvas();
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+    });
+    
+    // Sound toggle functionality
+    const soundBtn = document.getElementById('sound-btn');
+    let soundEnabled = true;
+    
+    soundBtn.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        if (soundEnabled) {
+            soundBtn.classList.remove('sound-off');
+            soundBtn.classList.add('sound-on');
+            soundBtn.textContent = 'Sound: ON';
+        } else {
+            soundBtn.classList.remove('sound-on');
+            soundBtn.classList.add('sound-off');
+            soundBtn.textContent = 'Sound: OFF';
+        }
+    });
+    
+    // Mobile touch controls
+    let touchUpActive = false;
+    let touchDownActive = false;
+    
+    // Touch event handlers for up button
+    touchUpBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent scrolling
+        touchUpActive = true;
+    });
+    
+    touchUpBtn.addEventListener('touchend', () => {
+        touchUpActive = false;
+    });
+    
+    touchUpBtn.addEventListener('touchcancel', () => {
+        touchUpActive = false;
+    });
+    
+    // Touch event handlers for down button
+    touchDownBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent scrolling
+        touchDownActive = true;
+    });
+    
+    touchDownBtn.addEventListener('touchend', () => {
+        touchDownActive = false;
+    });
+    
+    touchDownBtn.addEventListener('touchcancel', () => {
+        touchDownActive = false;
+    });
+    
+    // Prevent default touchmove behavior to avoid scrolling while playing
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+    }, { passive: false });
+    
+    // Prevent double tap to zoom
+    document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        const DOUBLE_TAP_DELAY = 300;
+        if (now - lastTap < DOUBLE_TAP_DELAY) {
+            e.preventDefault();
+        }
+        lastTap = now;
+    }, { passive: false });
+    
+    let lastTap = 0;
     
     // Preload kitty images
     const kittyImages = [
@@ -261,8 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentKittyIndex = Math.floor(Math.random() * kittyImages.length);
     }
     
-    // Play random meow sound
+    // Play random meow sound - modified to check if sound is enabled
     function playMeow() {
+        if (!soundEnabled) return;
+        
         try {
             const audio = new Audio();
             audio.volume = 0.3;
@@ -603,16 +702,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.restore();
     }
     
-    // Update player paddle position
+    // Update player paddle position - modified for touch controls
     function updatePlayerPaddle() {
         // Reset dy
         playerPaddle.dy = 0;
         
-        // Check which keys are pressed
-        if ((keys.w || keys.ArrowUp) && playerPaddle.y > 0) {
+        // Check which keys are pressed or touch controls are active
+        if ((keys.w || keys.ArrowUp || touchUpActive) && playerPaddle.y > 0) {
             playerPaddle.dy = -playerPaddle.speed * difficultyMultiplier;
         }
-        if ((keys.s || keys.ArrowDown) && playerPaddle.y < canvas.height - playerPaddle.height) {
+        if ((keys.s || keys.ArrowDown || touchDownActive) && playerPaddle.y < canvas.height - playerPaddle.height) {
             playerPaddle.dy = playerPaddle.speed * difficultyMultiplier;
         }
         
@@ -812,46 +911,52 @@ document.addEventListener('DOMContentLoaded', () => {
         currentKittyIndex = Math.floor(Math.random() * kittyImages.length);
     }
     
-    // Sound effects
+    // Sound effects - modified to check if sound is enabled
     function playSound(type) {
+        if (!soundEnabled) return;
+        
         // Use Web Audio API for sound effects
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        // Different sounds for different events
-        switch(type) {
-            case 'paddle':
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.1);
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.1);
-                break;
-            case 'wall':
-                oscillator.type = 'triangle';
-                oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.05);
-                gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.05);
-                break;
-            case 'score':
-                oscillator.type = 'sawtooth';
-                oscillator.frequency.setValueAtTime(110, audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.15);
-                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-                oscillator.start();
-                oscillator.stop(audioContext.currentTime + 0.15);
-                break;
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Different sounds for different events
+            switch(type) {
+                case 'paddle':
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.1);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                    break;
+                case 'wall':
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.05);
+                    gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.05);
+                    break;
+                case 'score':
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(110, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.15);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.15);
+                    break;
+            }
+        } catch (e) {
+            console.log("Sound couldn't play, but that's okay!");
         }
     }
     

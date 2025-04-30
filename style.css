@@ -11,6 +11,9 @@ body {
     font-family: 'Arial', sans-serif;
     color: white;
     overflow: hidden;
+    /* Disable pull-to-refresh and overscroll behavior for mobile */
+    overscroll-behavior: none;
+    touch-action: manipulation;
 }
 
 @keyframes rainbow-bg {
@@ -579,4 +582,117 @@ canvas {
     white-space: nowrap; /* Prevent text wrapping */
     overflow: hidden; /* Prevent overflow */
     text-overflow: ellipsis; /* Add ellipsis if text overflows */
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start;
+        padding-top: 10px;
+    }
+    
+    .game-container {
+        padding: 10px;
+        padding-top: 110px;
+        width: 95%;
+        max-width: 95vw;
+    }
+    
+    .kitty-header h1 {
+        font-size: 24px;
+    }
+    
+    .kitty-emoji {
+        font-size: 24px;
+    }
+    
+    #game-score {
+        margin-bottom: 5px;
+    }
+    
+    canvas {
+        width: 100%;
+        height: auto;
+        max-height: 70vh;
+    }
+    
+    button {
+        padding: 10px 16px;
+        font-size: 16px;
+    }
+    
+    .touch-controls {
+        display: flex;
+        width: 100%;
+        height: 80px;
+        margin-top: 10px;
+    }
+    
+    .mobile-instructions {
+        display: inline;
+    }
+    
+    .watching-kitty {
+        top: -50px;
+        transform: translateX(-50%) scale(0.8);
+    }
+}
+
+@media (min-width: 769px) {
+    .touch-controls {
+        display: none;
+    }
+    
+    .mobile-instructions {
+        display: none;
+    }
+}
+
+/* Touch controls styling */
+.touch-controls {
+    position: relative;
+    justify-content: space-between;
+}
+
+.touch-zone {
+    width: 48%;
+    height: 100%;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.touch-zone:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+}
+
+.touch-up:after {
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 25px solid rgba(255, 255, 255, 0.6);
+}
+
+.touch-down:after {
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 25px solid rgba(255, 255, 255, 0.6);
+}
+
+.touch-zone:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.touch-up:active:after {
+    border-bottom-color: rgba(0, 204, 255, 0.8);
+}
+
+.touch-down:active:after {
+    border-top-color: rgba(0, 204, 255, 0.8);
 }
