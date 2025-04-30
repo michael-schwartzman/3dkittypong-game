@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitty Pong Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="watching-kitty">
+            <div class="kitty-face">
+                <div class="kitty-ears">
+                    <div class="ear left-ear"></div>
+                    <div class="ear right-ear"></div>
+                </div>
+                <div class="kitty-eyes">
+                    <div class="eye left-eye"><div class="pupil"></div></div>
+                    <div class="eye right-eye"><div class="pupil"></div></div>
+                </div>
+                <div class="kitty-nose"></div>
+                <div class="kitty-mouth"></div>
+                <div class="kitty-whiskers">
+                    <div class="whisker whisker1"></div>
+                    <div class="whisker whisker2"></div>
+                    <div class="whisker whisker3"></div>
+                    <div class="whisker whisker4"></div>
+                    <div class="whisker whisker5"></div>
+                    <div class="whisker whisker6"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="kitty-header">
+            <span class="kitty-emoji">🐱</span>
+            <h1>KITTY PONG</h1>
+            <span class="kitty-emoji">🐱</span>
+        </div>
+        
+        <div id="game-stats">
+            <div id="game-score">
+                <div id="player-score">0</div>
+                <div id="computer-score">0</div>
+            </div>
+        </div>
+        
+        <canvas id="pong" width="600" height="400"></canvas>
+        <div class="controls">
+            <div class="control-buttons">
+                <button id="start-btn">Start Game</button>
+                <button id="sound-btn" class="sound-on">Sound: ON</button>
+            </div>
+            <p class="instructions">Use W/S or Up/Down arrows to move your paddle</p>
+        </div>
+        <div id="game-info-container">
+            <div id="game-timer">Time: <span id="timer-value">0</span>s</div>
+            <div id="game-difficulty">Diffulkitty: <span id="speed-value">1</span>x</div>
+        </div>
+        <div class="rainbow-border"></div>
+    </div>
+
+    <!-- Hidden preloaded kitty images -->
+    <div style="display:none;">
+        <img id="kitty1" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRkMwQ0IiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDI4YzEuNjY3IDIgMy42NjcgMyA2IDNzNC4zMzMtMSA2LTMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiNGRkMwQ0IiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 1">
+        <img id="kitty2" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNBMEUwRTAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDMwYzEuNjY3LTIgMy42NjctMyA2LTNzNC4zMzMgMSA2IDMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiNBMEUwRTAiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 2">
+        <img id="kitty3" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRkQzMDAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTI1IDMwbDQuNSA1TDI1IDQwbC00LjUtNUwyNSAzMHoiIGZpbGw9IiNGRjU3MjIiLz48cGF0aCBkPSJNMjIgMjhsMyAzIDMtM00zOCAxMGwxMCAtNU0xMiAxMEwyIDUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L2c+PC9zdmc+" alt="Kitty 3">
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

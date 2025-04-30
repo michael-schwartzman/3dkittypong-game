@@ -1,0 +1,582 @@
+body {
+    background: linear-gradient(135deg, #ff0080, #ff00ff, #9d4edd, #5a189a, #00b4d8, #00ffcc, #ffaa00, #ff0080);
+    background-size: 800% 800%;
+    animation: rainbow-bg 20s ease infinite;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Arial', sans-serif;
+    color: white;
+    overflow: hidden;
+}
+
+@keyframes rainbow-bg {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    overflow: hidden;
+    padding-top: 120px; /* Add space for the watching kitty */
+}
+
+.rainbow-border {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    z-index: -1;
+    background: linear-gradient(90deg, 
+        #ff0000, #ff8000, #ffff00, #80ff00, #00ff00, #00ff80, 
+        #00ffff, #0080ff, #0000ff, #8000ff, #ff00ff, #ff0080, #ff0000);
+    background-size: 400% 400%;
+    animation: rainbow-border 3s linear infinite;
+    border-radius: 18px;
+}
+
+@keyframes rainbow-border {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+.kitty-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.kitty-header h1 {
+    margin: 0 15px;
+    font-size: 32px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    background: linear-gradient(to right, #ff00ff, #00ffff, #ffff00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbow-text 3s linear infinite;
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.kitty-emoji {
+    font-size: 32px;
+    animation: bounce 1s infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0) rotate(0deg); }
+    to { transform: translateY(-10px) rotate(10deg); }
+}
+
+@keyframes rainbow-text {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+#game-score {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 32px;
+    text-shadow: 0 0 10px #ff00ff;
+    position: relative;
+}
+
+#player-score, #computer-score {
+    width: 60px;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: transform 0.3s, color 0.3s;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+#player-score::before, #computer-score::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        rgba(255,0,0,0.3), rgba(255,255,0,0.3), 
+        rgba(0,255,0,0.3), rgba(0,255,255,0.3), 
+        rgba(0,0,255,0.3), rgba(255,0,255,0.3));
+    background-size: 400% 400%;
+    animation: shimmer 3s linear infinite;
+    z-index: -1;
+    opacity: 0.7;
+    border-radius: 8px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 0% 0%; transform: rotate(0deg); }
+    100% { background-position: 100% 100%; transform: rotate(360deg); }
+}
+
+#player-score {
+    background-color: rgba(0, 204, 255, 0.3);
+    border: 2px solid #00ccff;
+}
+
+#computer-score {
+    background-color: rgba(255, 0, 128, 0.3);
+    border: 2px solid #ff0080;
+}
+
+canvas {
+    background-image: linear-gradient(to right bottom, rgba(0,0,0,0.9), rgba(25,0,50,0.85)), 
+                      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M29 28.565c-1.524-5.367-4.03-8.05-7.521-8.05-5.988 0-8.527 9.582-8.527 9.582s-1.211-2.45-4.242-2.45c-1.78 0-3.34.822-4.677 2.464' stroke='rgba(255,100,255,0.2)' stroke-width='2'/%3E%3Cpath d='M48 28.565c-1.524-5.367-4.03-8.05-7.521-8.05-5.988 0-8.527 9.582-8.527 9.582s-1.211-2.45-4.242-2.45c-1.78 0-3.34.822-4.677 2.464' stroke='rgba(100,255,255,0.2)' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.7);
+    animation: border-pulse 2s infinite alternate;
+}
+
+@keyframes border-pulse {
+    0% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.6), inset 0 0 30px rgba(0, 0, 0, 0.7); }
+    100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 0, 0, 0.7); }
+}
+
+.controls {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+button {
+    background: linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc);
+    background-size: 300% 300%;
+    animation: button-bg 3s ease infinite;
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 50px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes button-bg {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.8);
+}
+
+button:hover::before {
+    content: "😺";
+    position: absolute;
+    font-size: 20px;
+    left: 10px;
+}
+
+button:hover::after {
+    content: "😺";
+    position: absolute;
+    font-size: 20px;
+    right: 10px;
+}
+
+.instructions {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+.score-update {
+    animation: pulse 0.5s ease-in-out;
+    color: #ffff00 !important;
+    text-shadow: 0 0 15px #ffff00 !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Watching kitty styles */
+.watching-kitty {
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    height: 180px;
+    z-index: 10;
+}
+
+.kitty-face {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    background: #ffb8de;
+    border-radius: 50%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    overflow: visible;
+    transition: background-color 0.5s ease;
+}
+
+.kitty-ears {
+    position: absolute;
+    top: -25px;
+    width: 100%;
+}
+
+.ear {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-bottom: 45px solid #ffb8de;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    transition: border-bottom-color 0.5s ease;
+}
+
+.left-ear {
+    left: 10px;
+    transform: rotate(-15deg);
+}
+
+.right-ear {
+    right: 10px;
+    transform: rotate(15deg);
+}
+
+.kitty-eyes {
+    position: absolute;
+    top: 50px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.eye {
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    animation: blink 4s infinite;
+}
+
+@keyframes blink {
+    0%, 95%, 98% { height: 40px; }
+    96%, 97% { height: 5px; top: 18px; }
+}
+
+.pupil {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #000;
+    border-radius: 50%;
+    top: 10px;
+    left: 10px;
+    transition: all 0.2s;
+}
+
+.kitty-nose {
+    position: absolute;
+    top: 95px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 10px;
+    background: #ff7eb9;
+    border-radius: 50%;
+}
+
+.kitty-mouth {
+    position: absolute;
+    top: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 10px;
+    border-bottom: 3px solid #000;
+    border-radius: 0 0 40% 40%;
+}
+
+.kitty-whiskers {
+    position: absolute;
+    top: 95px;
+    width: 100%;
+}
+
+.whisker {
+    position: absolute;
+    width: 40px;
+    height: 2px;
+    background: #333;
+}
+
+.whisker1 {
+    top: 0;
+    left: 10px;
+    transform: rotate(-10deg);
+}
+
+.whisker2 {
+    top: 10px;
+    left: 5px;
+    transform: rotate(-5deg);
+}
+
+.whisker3 {
+    top: 20px;
+    left: 8px;
+    transform: rotate(-2deg);
+}
+
+.whisker4 {
+    top: 0;
+    right: 10px;
+    transform: rotate(10deg);
+}
+
+.whisker5 {
+    top: 10px;
+    right: 5px;
+    transform: rotate(5deg);
+}
+
+.whisker6 {
+    top: 20px;
+    right: 8px;
+    transform: rotate(2deg);
+}
+
+/* Watch the ball movement - animation for the watching kitty's pupils */
+.watching-kitty.follow-left .pupil {
+    left: 5px;
+}
+
+.watching-kitty.follow-right .pupil {
+    left: 15px;
+}
+
+.watching-kitty.follow-up .pupil {
+    top: 5px;
+}
+
+.watching-kitty.follow-down .pupil {
+    top: 15px;
+}
+
+/* Enhanced game stats section */
+#game-stats {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 18px;
+    text-shadow: 0 0 10px #ff00ff;
+    position: relative;
+}
+
+#game-score {
+    display: flex;
+    justify-content: space-between;
+    flex: 2;
+}
+
+/* Update the game difficulty (formerly speed) and timer styles */
+#game-difficulty {
+    padding: 5px 10px;
+    border-radius: 8px;
+    background-color: rgba(157, 78, 221, 0.3);
+    border: 2px solid #9d4edd;
+    text-align: center;
+    margin: 0 5px;
+    flex: 1;
+    transition: background-color 0.5s;
+    font-weight: bold;
+}
+
+#game-timer-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+#game-timer {
+    padding: 3px 8px;
+    border-radius: 8px;
+    background-color: rgba(157, 78, 221, 0.2);
+    border: 1px solid #9d4edd;
+    text-align: center;
+    font-size: 12px;
+    transition: background-color 0.5s;
+    margin-bottom: 5px;
+}
+
+#player-score, #computer-score {
+    width: 60px;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: transform 0.3s, color 0.3s;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+#player-score::before, #computer-score::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+        rgba(255,0,0,0.3), rgba(255,255,0,0.3), 
+        rgba(0,255,0,0.3), rgba(0,255,255,0.3), 
+        rgba(0,0,255,0.3), rgba(255,0,255,0.3));
+    background-size: 400% 400%;
+    animation: shimmer 3s linear infinite;
+    z-index: -1;
+    opacity: 0.7;
+    border-radius: 8px;
+}
+
+@keyframes shimmer {
+    0% { background-position: 0% 0%; transform: rotate(0deg); }
+    100% { background-position: 100% 100%; transform: rotate(360deg); }
+}
+
+#player-score {
+    background-color: rgba(0, 204, 255, 0.3);
+    border: 2px solid #00ccff;
+}
+
+#computer-score {
+    background-color: rgba(255, 0, 128, 0.3);
+    border: 2px solid #ff0080;
+}
+
+canvas {
+    background-image: linear-gradient(to right bottom, rgba(0,0,0,0.9), rgba(25,0,50,0.85)), 
+                      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M29 28.565c-1.524-5.367-4.03-8.05-7.521-8.05-5.988 0-8.527 9.582-8.527 9.582s-1.211-2.45-4.242-2.45c-1.78 0-3.34.822-4.677 2.464' stroke='rgba(255,100,255,0.2)' stroke-width='2'/%3E%3Cpath d='M48 28.565c-1.524-5.367-4.03-8.05-7.521-8.05-5.988 0-8.527 9.582-8.527 9.582s-1.211-2.45-4.242-2.45c-1.78 0-3.34.822-4.677 2.464' stroke='rgba(100,255,255,0.2)' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover;
+    border: 3px solid transparent;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.7);
+    animation: border-pulse 2s infinite alternate;
+}
+
+@keyframes border-pulse {
+    0% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.6), inset 0 0 30px rgba(0, 0, 0, 0.7); }
+    100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 0, 0, 0.7); }
+}
+
+/* Difficulty indicator pulse (formerly speed-pulse) */
+@keyframes difficulty-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); background-color: rgba(255, 0, 0, 0.5); }
+    100% { transform: scale(1); }
+}
+
+.speed-up {
+    animation: difficulty-pulse 0.5s;
+}
+
+/* Sound button styles */
+.control-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+#sound-btn {
+    background: linear-gradient(45deg, #ff8800, #ff00cc, #8800ff);
+    background-size: 300% 300%;
+    animation: button-bg 3s ease infinite;
+    padding: 12px 18px;
+    font-size: 16px;
+}
+
+#sound-btn.sound-off {
+    background: linear-gradient(45deg, #888888, #555555, #333333);
+    background-size: 300% 300%;
+    animation: button-bg 3s ease infinite 0.5s;
+    opacity: 0.8;
+}
+
+#sound-btn:hover::before,
+#sound-btn:hover::after {
+    content: "🔊";
+}
+
+#sound-btn.sound-off:hover::before,
+#sound-btn.sound-off:hover::after {
+    content: "🔇";
+}
+
+/* Update the game info container styles */
+#game-info-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+#game-timer, #game-difficulty {
+    padding: 3px 8px;
+    border-radius: 8px;
+    background-color: rgba(157, 78, 221, 0.2);
+    border: 1px solid #9d4edd;
+    text-align: center;
+    font-size: 12px;
+    transition: background-color 0.5s;
+    margin-bottom: 5px;
+    flex: 1;  /* Make both elements take equal space */
+    max-width: 45%;  /* Prevent them from getting too wide */
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Prevent overflow */
+    text-overflow: ellipsis; /* Add ellipsis if text overflows */
+}
