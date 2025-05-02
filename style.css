@@ -36,6 +36,10 @@ body {
     position: relative;
     overflow: hidden;
     padding-top: 120px; /* Add space for the watching kitty */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .rainbow-border {
@@ -609,6 +613,7 @@ canvas {
         width: 95%;
         max-width: 95vw;
         margin: 0 auto;
+        transform: translateZ(0); /* Enable hardware acceleration */
     }
     
     .kitty-header h1 {
@@ -644,6 +649,7 @@ canvas {
         width: 100%;
         height: 80px;
         margin-top: 10px;
+        gap: 10px;
     }
     
     .mobile-instructions {
@@ -680,6 +686,15 @@ canvas {
         .touch-zone {
             -webkit-tap-highlight-color: transparent;
         }
+
+        #game-canvas-container {
+            height: 280px; /* Slightly smaller on iOS to prevent scrolling issues */
+        }
+    }
+
+    #game-canvas-container {
+        height: 300px;
+        max-height: 50vh;
     }
 }
 
@@ -695,6 +710,10 @@ canvas {
     
     .mouse-instructions {
         display: inline;
+    }
+
+    #game-canvas-container:hover {
+        cursor: ns-resize; /* Show vertical resize cursor to indicate paddle movement */
     }
 }
 
@@ -740,6 +759,7 @@ canvas {
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease;
+    transition: transform 0.1s ease-out, background-color 0.2s ease;
 }
 
 .touch-zone:after {
@@ -769,6 +789,8 @@ canvas {
     background-color: rgba(255, 255, 255, 0.3);
     box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
     transform: scale(1.05);
+    transform: scale(0.98);
+    background-color: rgba(255, 255, 255, 0.25);
 }
 
 .touch-up.active:after {
@@ -798,4 +820,30 @@ canvas {
 
 .high-energy {
     animation: high-energy-shake 0.5s infinite;
+}
+
+/* Update canvas container styles */
+#game-canvas-container {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    margin: 10px 0;
+    touch-action: none; /* Prevent default touch actions */
+    cursor: pointer; /* Show pointer cursor */
+}
+
+#pong {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.7);
+    touch-action: none;
+}
+
+/* Mobile responsiveness for 3D canvas */
+@media (max-width: 768px) {
+    #game-canvas-container {
+        height: 300px;
+    }
 }

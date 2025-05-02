@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style"="black-translucent">
-    <title>Kitty Pong Game</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>3D Kitty Pong Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -36,7 +36,7 @@
         
         <div class="kitty-header">
             <span class="kitty-emoji">🐱</span>
-            <h1>KITTY PONG</h1>
+            <h1>3D KITTY PONG</h1>
             <span class="kitty-emoji">🐱</span>
         </div>
         
@@ -47,7 +47,10 @@
             </div>
         </div>
         
-        <canvas id="pong" width="600" height="400"></canvas>
+        <div id="game-canvas-container">
+            <canvas id="pong"></canvas>
+        </div>
+
         <div class="controls">
             <div class="control-buttons">
                 <button id="start-btn">Start Game</button>
@@ -76,6 +79,6 @@
         <img id="kitty3" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRkQzMDAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTI1IDMwbDQuNSA1TDI1IDQwbC00LjUtNUwyNSAzMHoiIGZpbGw9IiNGRjU3MjIiLz48cGF0aCBkPSJNMjIgMjhsMyAzIDMtM00zOCAxMGwxMCAtNU0xMiAxMEwyIDUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L2c+PC9zdmc+" alt="Kitty 3">
     </div>
     
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
