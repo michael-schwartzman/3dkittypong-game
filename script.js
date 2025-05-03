@@ -382,24 +382,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Particle system for visual effects
-    const particleCount = 100;
+    const particleCount = 150; // Increased from 100
     const particles = new THREE.Points(
         new THREE.BufferGeometry(),
         new THREE.PointsMaterial({
-            color: 0xffffff,
-            size: 0.1,
+            vertexColors: true, // Enable vertex colors
+            size: 0.15, // Slightly larger particles
             transparent: true,
             blending: THREE.AdditiveBlending
         })
     );
 
     const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
     const velocities = [];
     
     for (let i = 0; i < particleCount; i++) {
         positions[i * 3] = (Math.random() - 0.5) * 30;
         positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
         positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+        
+        // Assign a rainbow color to each particle
+        const hue = Math.random();
+        const color = new THREE.Color().setHSL(hue, 1, 0.5);
+        colors[i * 3] = color.r;
+        colors[i * 3 + 1] = color.g;
+        colors[i * 3 + 2] = color.b;
+        
         velocities.push(new THREE.Vector3(
             (Math.random() - 0.5) * 0.1,
             (Math.random() - 0.5) * 0.1,
@@ -408,11 +417,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     particles.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    particles.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
     scene.add(particles);
 
     // Update particles
     function updateParticles() {
         const positions = particles.geometry.attributes.position.array;
+        const colors = particles.geometry.attributes.color.array;
         
         for (let i = 0; i < particleCount; i++) {
             positions[i * 3] += velocities[i].x;
@@ -426,9 +437,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (Math.abs(positions[i * 3 + 1]) > 10) {
                 positions[i * 3 + 1] = -10 * Math.sign(positions[i * 3 + 1]);
             }
+
+            // Gradually shift colors for rainbow effect
+            const hue = (Date.now() * 0.0001 + i * 0.01) % 1;
+            const color = new THREE.Color().setHSL(hue, 1, 0.5);
+            colors[i * 3] = color.r;
+            colors[i * 3 + 1] = color.g;
+            colors[i * 3 + 2] = color.b;
         }
 
         particles.geometry.attributes.position.needsUpdate = true;
+        particles.geometry.attributes.color.needsUpdate = true;
     }
 
     // Animation loop
