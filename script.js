@@ -262,6 +262,117 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Background kitty faces that randomly appear
+    const bgKittyEmojis = ['😺', '😸', '😻', '😽', '🙀', '😹', '😿', '😾'];
+    const bgKittyCount = 10;
+    const bgKittyFaces = [];
+    
+    // Create background kitty face sprites
+    for (let i = 0; i < bgKittyCount; i++) {
+        // Create a canvas to draw the kitty face
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        
+        // Clear canvas with transparency
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw random kitty emoji
+        ctx.font = '48px Arial';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const emoji = bgKittyEmojis[Math.floor(Math.random() * bgKittyEmojis.length)];
+        ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
+        
+        // Create sprite material
+        const texture = new THREE.CanvasTexture(canvas);
+        const material = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            opacity: 0
+        });
+        
+        // Create sprite and add to scene
+        const sprite = new THREE.Sprite(material);
+        sprite.scale.set(3, 3, 1);
+        sprite.position.z = -3 - Math.random() * 5; // Position behind the playing field
+        sprite.position.x = (Math.random() - 0.5) * 25;
+        sprite.position.y = (Math.random() - 0.5) * 15;
+        sprite.userData = {
+            active: false,
+            lifetime: 0,
+            maxLifetime: 3000 + Math.random() * 2000,
+            emoji: emoji
+        };
+        scene.add(sprite);
+        bgKittyFaces.push(sprite);
+    }
+    
+    // Function to update background kitty faces
+    function updateBackgroundKitties(time) {
+        // Approximately every 1-2 seconds, try to activate an inactive kitty face
+        if (Math.random() < 0.01 && gameState.gameRunning) {
+            const inactiveKitties = bgKittyFaces.filter(k => !k.userData.active);
+            if (inactiveKitties.length > 0) {
+                // Activate a random kitty face
+                const kitty = inactiveKitties[Math.floor(Math.random() * inactiveKitties.length)];
+                kitty.userData.active = true;
+                kitty.userData.lifetime = 0;
+                
+                // Randomize position and size
+                kitty.position.x = (Math.random() - 0.5) * 25;
+                kitty.position.y = (Math.random() - 0.5) * 15;
+                const scale = 2 + Math.random() * 3;
+                kitty.scale.set(scale, scale, 1);
+                
+                // Choose a new emoji
+                const emoji = bgKittyEmojis[Math.floor(Math.random() * bgKittyEmojis.length)];
+                const canvas = kitty.material.map.image;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.font = '48px Arial';
+                ctx.fillStyle = `hsla(${Math.random() * 360}, 100%, 85%, 0.7)`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
+                kitty.material.map.needsUpdate = true;
+            }
+        }
+        
+        // Update all active kitty faces
+        bgKittyFaces.forEach(kitty => {
+            if (kitty.userData.active) {
+                kitty.userData.lifetime += 16; // Approximately 16ms per frame at 60fps
+                
+                if (kitty.userData.lifetime < 500) {
+                    // Fade in
+                    kitty.material.opacity = kitty.userData.lifetime / 500;
+                } else if (kitty.userData.lifetime > kitty.userData.maxLifetime - 500) {
+                    // Fade out
+                    kitty.material.opacity = (kitty.userData.maxLifetime - kitty.userData.lifetime) / 500;
+                } else {
+                    // Full opacity during middle of lifetime
+                    kitty.material.opacity = 1;
+                }
+                
+                // Gentle floating movement
+                kitty.position.x += Math.sin(time * 0.001 + kitty.position.y) * 0.01;
+                kitty.position.y += Math.cos(time * 0.001 + kitty.position.x) * 0.01;
+                
+                // Slight rotation
+                kitty.material.rotation += 0.003;
+                
+                // Deactivate when lifetime is over
+                if (kitty.userData.lifetime >= kitty.userData.maxLifetime) {
+                    kitty.userData.active = false;
+                    kitty.material.opacity = 0;
+                }
+            }
+        });
+    }
+
     // Game variables
     const gameState = {
         gameRunning: false,
@@ -679,6 +790,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateKittyFace(time);
             updateKittyTrail(); // Add this line to update the kitty trail
             updateFieldBoundaries(); // Add this line to update the field boundaries
+            updateBackgroundKitties(time); // Add this line to update the background kitties
 
             // Gradually increase difficulty
             gameState.difficultyMultiplier += 0.0001;
