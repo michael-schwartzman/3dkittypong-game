@@ -847,3 +847,75 @@ canvas {
         height: 300px;
     }
 }
+
+/* Add ear wiggle animation for when scoring happens */
+@keyframes earWiggle {
+    0% { transform: rotate(-15deg); }
+    25% { transform: rotate(-25deg); }
+    50% { transform: rotate(-5deg); }
+    75% { transform: rotate(-20deg); }
+    100% { transform: rotate(-15deg); }
+}
+
+@keyframes rightEarWiggle {
+    0% { transform: rotate(15deg); }
+    25% { transform: rotate(25deg); }
+    50% { transform: rotate(5deg); }
+    75% { transform: rotate(20deg); }
+    100% { transform: rotate(15deg); }
+}
+
+.left-ear.wiggle {
+    animation: earWiggle 0.5s ease-in-out;
+}
+
+.right-ear.wiggle {
+    animation: rightEarWiggle 0.5s ease-in-out;
+}
+
+/* Add a rainbow glow to the kitty eyes when excited */
+.kitty-eyes .eye {
+    position: relative;
+    overflow: hidden;
+}
+
+.kitty-eyes .eye::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: linear-gradient(90deg, 
+        rgba(255,0,255,0), 
+        rgba(255,0,255,0.2), 
+        rgba(0,255,255,0.2), 
+        rgba(255,255,0,0.2), 
+        rgba(255,0,255,0));
+    background-size: 200% 100%;
+    border-radius: 50%;
+    animation: eyeRainbow 3s linear infinite;
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+}
+
+@keyframes eyeRainbow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+.watching-kitty.excited .eye::after {
+    opacity: 1;
+}
+
+/* Make the kitty mouth change on scoring */
+@keyframes mouthHappy {
+    0% { height: 10px; border-radius: 0 0 40% 40%; }
+    50% { height: 15px; border-radius: 0 0 50% 50%; }
+    100% { height: 10px; border-radius: 0 0 40% 40%; }
+}
+
+.kitty-mouth.happy {
+    animation: mouthHappy 0.8s ease-in-out;
+}
