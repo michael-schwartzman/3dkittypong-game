@@ -20,15 +20,57 @@ document.addEventListener('DOMContentLoaded', () => {
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
-    // Field boundaries
+    // Field boundaries with color animation
     const fieldGeometry = new THREE.BoxGeometry(30, 20, 1);
     const fieldEdges = new THREE.EdgesGeometry(fieldGeometry);
-    const fieldLines = new THREE.LineSegments(
-        fieldEdges,
-        new THREE.LineBasicMaterial({ color: 0x9d4edd })
-    );
+    const fieldMaterial = new THREE.LineBasicMaterial({ 
+        color: 0x9d4edd,
+        linewidth: 2,
+    });
+    const fieldLines = new THREE.LineSegments(fieldEdges, fieldMaterial);
     fieldLines.position.z = -0.5;
     scene.add(fieldLines);
+    
+    // Add corner glow lights
+    const cornerColors = [
+        0xff00ff, // Top-left: magenta
+        0x00ffff, // Top-right: cyan
+        0xffff00, // Bottom-right: yellow
+        0xff00aa  // Bottom-left: pink
+    ];
+    
+    const cornerLights = [];
+    const cornerPositions = [
+        new THREE.Vector3(-14.5, 9.5, 0),  // Top-left
+        new THREE.Vector3(14.5, 9.5, 0),   // Top-right
+        new THREE.Vector3(14.5, -9.5, 0),  // Bottom-right
+        new THREE.Vector3(-14.5, -9.5, 0)  // Bottom-left
+    ];
+    
+    for (let i = 0; i < 4; i++) {
+        const cornerLight = new THREE.PointLight(cornerColors[i], 1, 8, 2);
+        cornerLight.position.copy(cornerPositions[i]);
+        scene.add(cornerLight);
+        cornerLights.push(cornerLight);
+    }
+    
+    // Function to update field boundary colors and corner lights
+    function updateFieldBoundaries() {
+        // Cycle the edge color with a rainbow effect
+        const hue = (Date.now() * 0.0002) % 1;
+        const color = new THREE.Color().setHSL(hue, 1, 0.6);
+        fieldMaterial.color = color;
+        
+        // Update corner light positions and add pulsing effect
+        const pulseIntensity = Math.sin(Date.now() * 0.002) * 0.5 + 1;
+        for (let i = 0; i < cornerLights.length; i++) {
+            cornerLights[i].intensity = pulseIntensity;
+            
+            // Shift the corner light hue over time
+            const cornerHue = (hue + (i * 0.25)) % 1;
+            cornerLights[i].color.setHSL(cornerHue, 1, 0.5);
+        }
+    }
 
     // Paddle material with enhanced glow effect
     const createPaddleMaterial = (baseColor) => {
@@ -636,6 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePaddleGlow();
             updateKittyFace(time);
             updateKittyTrail(); // Add this line to update the kitty trail
+            updateFieldBoundaries(); // Add this line to update the field boundaries
 
             // Gradually increase difficulty
             gameState.difficultyMultiplier += 0.0001;
