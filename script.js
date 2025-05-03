@@ -691,19 +691,153 @@ document.addEventListener('DOMContentLoaded', () => {
             kitty.userData.lastFaceChange = Date.now();
         }
 
-        // Scoring
+        // Scoring with enhanced visual effects
         if (kitty.position.x < -15) {
             gameState.computerScore++;
             computerScoreDisplay.textContent = gameState.computerScore;
             playSound('score');
+            
+            // Add colorful visual effects for scoring
+            createScoreEffect('computer');
+            
+            // Apply score animation class
+            computerScoreDisplay.classList.add('score-update');
+            setTimeout(() => {
+                computerScoreDisplay.classList.remove('score-update');
+            }, 1000);
+            
             resetBall();
         }
         if (kitty.position.x > 15) {
             gameState.playerScore++;
             playerScoreDisplay.textContent = gameState.playerScore;
             playSound('score');
+            
+            // Add colorful visual effects for scoring
+            createScoreEffect('player');
+            
+            // Apply score animation class
+            playerScoreDisplay.classList.add('score-update');
+            setTimeout(() => {
+                playerScoreDisplay.classList.remove('score-update');
+            }, 1000);
+            
             resetBall();
         }
+    }
+
+    // Create colorful score effect with kitty-themed confetti
+    function createScoreEffect(side) {
+        const confettiCount = 30;
+        const confettiGeometry = new THREE.PlaneGeometry(0.3, 0.3);
+        const confettis = [];
+        
+        // Position based on which side scored
+        const posX = side === 'player' ? 12 : -12;
+        
+        for (let i = 0; i < confettiCount; i++) {
+            // Create random kitty emoji or star/heart shape
+            const canvas = document.createElement('canvas');
+            canvas.width = 32;
+            canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas with transparency
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Randomly choose between kitty emojis or shapes
+            const shapes = ['😺', '😸', '😻', '✨', '💕', '🌟', '🎉', '🎊'];
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            
+            ctx.font = '24px Arial';
+            
+            // Random bright color
+            const hue = Math.random() * 360;
+            ctx.fillStyle = `hsl(${hue}, 100%, 70%)`;
+            
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(shape, canvas.width / 2, canvas.height / 2);
+            
+            // Create material with the emoji or shape
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide,
+                blending: THREE.AdditiveBlending
+            });
+            
+            // Create confetti piece
+            const confetti = new THREE.Mesh(confettiGeometry, material);
+            confetti.position.set(
+                posX + (Math.random() - 0.5) * 2,
+                Math.random() * 10 - 5,
+                Math.random() * 2
+            );
+            
+            // Add random rotation and velocity
+            confetti.rotation.set(
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2,
+                Math.random() * Math.PI * 2
+            );
+            
+            confetti.userData.velocity = new THREE.Vector3(
+                (Math.random() - 0.5) * 0.2 * (side === 'player' ? -1 : 1),
+                (Math.random() - 0.5) * 0.2,
+                0
+            );
+            
+            confetti.userData.rotationSpeed = new THREE.Vector3(
+                (Math.random() - 0.5) * 0.1,
+                (Math.random() - 0.5) * 0.1,
+                (Math.random() - 0.5) * 0.1
+            );
+            
+            confetti.userData.lifetime = 0;
+            confetti.userData.maxLifetime = 1000 + Math.random() * 1000;
+            
+            scene.add(confetti);
+            confettis.push(confetti);
+            
+            // Remove confetti after its lifetime
+            setTimeout(() => {
+                scene.remove(confetti);
+                confetti.geometry.dispose();
+                confetti.material.dispose();
+                if (confetti.material.map) {
+                    confetti.material.map.dispose();
+                }
+            }, confetti.userData.maxLifetime);
+        }
+        
+        // Update confetti in animation loop
+        confettis.forEach(confetti => {
+            const updateConfetti = () => {
+                confetti.position.add(confetti.userData.velocity);
+                confetti.rotation.x += confetti.userData.rotationSpeed.x;
+                confetti.rotation.y += confetti.userData.rotationSpeed.y;
+                confetti.rotation.z += confetti.userData.rotationSpeed.z;
+                
+                confetti.userData.lifetime += 16; // Approx 16ms per frame at 60fps
+                
+                // Add gravity effect
+                confetti.userData.velocity.y -= 0.001;
+                
+                // Fade out towards end of lifetime
+                if (confetti.userData.lifetime > confetti.userData.maxLifetime - 500) {
+                    const opacity = (confetti.userData.maxLifetime - confetti.userData.lifetime) / 500;
+                    confetti.material.opacity = Math.max(0, opacity);
+                }
+                
+                if (confetti.userData.lifetime < confetti.userData.maxLifetime) {
+                    requestAnimationFrame(updateConfetti);
+                }
+            };
+            
+            requestAnimationFrame(updateConfetti);
+        });
     }
 
     // Particle system for visual effects
