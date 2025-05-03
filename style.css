@@ -1,921 +1,604 @@
-body {
-    background: linear-gradient(135deg, #ff0080, #ff00ff, #9d4edd, #5a189a, #00b4d8, #00ffcc, #ffaa00, #ff0080);
-    background-size: 800% 800%;
-    animation: rainbow-bg 20s ease infinite;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-family: 'Arial', sans-serif;
-    color: white;
-    overflow: hidden;
-    /* Disable pull-to-refresh and overscroll behavior for mobile */
-    overscroll-behavior: none;
-    touch-action: manipulation;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
-@keyframes rainbow-bg {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+body {
+  background: linear-gradient(45deg, #ff00cc, #3333ff, #00ccff, #33ff33, #ffff00, #ff9900);
+  background-size: 600% 600%;
+  animation: gradient-animation 15s ease infinite;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes gradient-animation {
+  0% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+  100% { background-position: 0% 50% }
 }
 
 .game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(255, 0, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.5);
-    background-color: rgba(0, 0, 0, 0.7);
-    border: 3px solid transparent;
-    background-clip: padding-box;
-    position: relative;
-    overflow: hidden;
-    padding-top: 120px; /* Add space for the watching kitty */
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3), inset 0 0 30px rgba(255, 192, 203, 0.4);
+  position: relative;
+  overflow: hidden;
 }
 
 .rainbow-border {
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    z-index: -1;
-    background: linear-gradient(90deg, 
-        #ff0000, #ff8000, #ffff00, #80ff00, #00ff00, #00ff80, 
-        #00ffff, #0080ff, #0000ff, #8000ff, #ff00ff, #ff0080, #ff0000);
-    background-size: 400% 400%;
-    animation: rainbow-border 3s linear infinite;
-    border-radius: 18px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 4px solid transparent;
+  border-radius: 20px;
+  background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet) border-box;
+  -webkit-mask: 
+     linear-gradient(#fff 0 0) padding-box, 
+     linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  animation: rainbow-pulse 2s infinite alternate;
+  z-index: -1;
 }
 
-@keyframes rainbow-border {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
+@keyframes rainbow-pulse {
+  0% {
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.7);
+  }
+  25% {
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+  }
+  75% {
+    box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(128, 0, 255, 0.7);
+  }
+}
+
+.rainbow-sparkles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.sparkle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff, transparent);
+  animation: sparkle-animation 1.5s linear forwards;
+  z-index: 999;
+}
+
+@keyframes sparkle-animation {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 .kitty-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 15px;
-    width: 100%;
-}
-
-.kitty-header h1 {
-    margin: 0 15px;
-    font-size: 32px;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    background: linear-gradient(to right, #ff00ff, #00ffff, #ffff00);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: rainbow-text 3s linear infinite;
-    text-shadow: 0 0 5px rgba(255,255,255,0.5);
-}
-
-.kitty-emoji {
-    font-size: 32px;
-    animation: bounce 1s infinite alternate;
-}
-
-@keyframes bounce {
-    from { transform: translateY(0) rotate(0deg); }
-    to { transform: translateY(-10px) rotate(10deg); }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  animation: rainbow-text 5s linear infinite;
 }
 
 @keyframes rainbow-text {
-    0% { filter: hue-rotate(0deg); }
-    100% { filter: hue-rotate(360deg); }
+  0% { color: #ff0000; }
+  15% { color: #ff8000; }
+  30% { color: #ffff00; }
+  45% { color: #00ff00; }
+  60% { color: #00ffff; }
+  75% { color: #0080ff; }
+  90% { color: #8000ff; }
+  100% { color: #ff0000; }
 }
 
-#game-score {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 32px;
-    text-shadow: 0 0 10px #ff00ff;
-    position: relative;
+.kitty-header h1 {
+  font-size: 2rem;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 
-#player-score, #computer-score {
-    width: 60px;
-    text-align: center;
-    padding: 5px 10px;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: transform 0.3s, color 0.3s;
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
+.kitty-emoji {
+  font-size: 2.5rem;
+  margin: 0 10px;
+  animation: bounce 0.5s ease-in-out infinite alternate;
 }
 
-#player-score::before, #computer-score::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, 
-        rgba(255,0,0,0.3), rgba(255,255,0,0.3), 
-        rgba(0,255,0,0.3), rgba(0,255,255,0.3), 
-        rgba(0,0,255,0.3), rgba(255,0,255,0.3));
-    background-size: 400% 400%;
-    animation: shimmer 3s linear infinite;
-    z-index: -1;
-    opacity: 0.7;
-    border-radius: 8px;
+@keyframes bounce {
+  from { transform: translateY(-5px); }
+  to { transform: translateY(5px); }
 }
 
-@keyframes shimmer {
-    0% { background-position: 0% 0%; transform: rotate(0deg); }
-    100% { background-position: 100% 100%; transform: rotate(360deg); }
+/* Floating kitty emojis */
+.kitty-emoji-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
 }
 
-#player-score {
-    background-color: rgba(0, 204, 255, 0.3);
-    border: 2px solid #00ccff;
+.floating-kitty {
+  position: absolute;
+  font-size: 2rem;
+  animation: float-around 15s linear infinite;
+  opacity: 0.6;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.8));
 }
 
-#computer-score {
-    background-color: rgba(255, 0, 128, 0.3);
-    border: 2px solid #ff0080;
-}
-
-canvas {
-    background-image: linear-gradient(to right bottom, rgba(0,0,0,0.9), rgba(25,0,50,0.85)), 
-                      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M29 28.565c-1.524-5.367-4.03-8.05-7.521-8.05-5.988 0-8.527 9.582-8.527 9.582s-1.211-2.45-4.242-2.45c-1.78 0-3.34.822-4.677 2.464' stroke='rgba(255,100,255,0.2)' stroke-width='2'/%3E%3Cpath d='M48 28.565c-1.524-5.367-4.03-8.05-7.521-8.05-5.988 0-8.527 9.582-8.527 9.582s-1.211-2.45-4.242-2.45c-1.78 0-3.34.822-4.677 2.464' stroke='rgba(100,255,255,0.2)' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: cover;
-    border: 3px solid transparent;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(157, 78, 221, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.7);
-    animation: border-pulse 2s infinite alternate;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-canvas:hover {
-    box-shadow: 0 0 25px rgba(157, 78, 221, 0.9), inset 0 0 35px rgba(0, 0, 0, 0.8);
-}
-
-@keyframes border-pulse {
-    0% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.6), inset 0 0 30px rgba(0, 0, 0, 0.7); }
-    100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 0, 0, 0.7); }
-}
-
-.controls {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-button {
-    background: linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc);
-    background-size: 300% 300%;
-    animation: button-bg 3s ease infinite;
-    border: none;
-    color: white;
-    padding: 12px 24px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 18px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 50px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
-    transition: transform 0.2s, box-shadow 0.2s;
-    position: relative;
-    overflow: hidden;
-}
-
-@keyframes button-bg {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(157, 78, 221, 0.8);
-}
-
-button:hover::before {
-    content: "😺";
-    position: absolute;
-    font-size: 20px;
-    left: 10px;
-}
-
-button:hover::after {
-    content: "😺";
-    position: absolute;
-    font-size: 20px;
-    right: 10px;
-}
-
-.instructions {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #fff;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
-}
-
-.score-update {
-    animation: pulse 0.5s ease-in-out;
-    color: #ffff00 !important;
-    text-shadow: 0 0 15px #ffff00 !important;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-/* Watching kitty styles */
-.watching-kitty {
-    position: absolute;
-    top: -60px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 180px;
-    height: 180px;
-    z-index: 10;
-}
-
-.kitty-face {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    background: #ffb8de;
-    border-radius: 50%;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-    overflow: visible;
-    transition: background-color 0.5s ease;
-}
-
-.kitty-ears {
-    position: absolute;
-    top: -25px;
-    width: 100%;
-}
-
-.ear {
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-bottom: 45px solid #ffb8de;
-    border-left: 25px solid transparent;
-    border-right: 25px solid transparent;
-    transition: border-bottom-color 0.5s ease;
-}
-
-.left-ear {
-    left: 10px;
-    transform: rotate(-15deg);
-}
-
-.right-ear {
-    right: 10px;
-    transform: rotate(15deg);
-}
-
-.kitty-eyes {
-    position: absolute;
-    top: 50px;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-}
-
-.eye {
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    border-radius: 50%;
-    position: relative;
-    overflow: hidden;
-    animation: blink 4s infinite;
-}
-
-@keyframes blink {
-    0%, 95%, 98% { height: 40px; }
-    96%, 97% { height: 5px; top: 18px; }
-}
-
-.pupil {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: #000;
-    border-radius: 50%;
-    top: 10px;
-    left: 10px;
-    transition: all 0.2s;
-}
-
-.kitty-nose {
-    position: absolute;
-    top: 95px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 16px;
-    height: 10px;
-    background: #ff7eb9;
-    border-radius: 50%;
-}
-
-.kitty-mouth {
-    position: absolute;
-    top: 110px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 30px;
-    height: 10px;
-    border-bottom: 3px solid #000;
-    border-radius: 0 0 40% 40%;
-}
-
-.kitty-whiskers {
-    position: absolute;
-    top: 95px;
-    width: 100%;
-}
-
-.whisker {
-    position: absolute;
-    width: 40px;
-    height: 2px;
-    background: #333;
-}
-
-.whisker1 {
+@keyframes float-around {
+  0% {
     top: 0;
-    left: 10px;
-    transform: rotate(-10deg);
-}
-
-.whisker2 {
-    top: 10px;
-    left: 5px;
-    transform: rotate(-5deg);
-}
-
-.whisker3 {
-    top: 20px;
-    left: 8px;
-    transform: rotate(-2deg);
-}
-
-.whisker4 {
+    left: 10%;
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    top: 20%;
+    left: 80%;
+    transform: rotate(90deg) scale(1.2);
+  }
+  50% {
+    top: 80%;
+    left: 80%;
+    transform: rotate(180deg) scale(1);
+  }
+  75% {
+    top: 80%;
+    left: 10%;
+    transform: rotate(270deg) scale(0.8);
+  }
+  100% {
     top: 0;
-    right: 10px;
-    transform: rotate(10deg);
+    left: 10%;
+    transform: rotate(360deg) scale(1);
+  }
 }
 
-.whisker5 {
-    top: 10px;
-    right: 5px;
-    transform: rotate(5deg);
-}
-
-.whisker6 {
-    top: 20px;
-    right: 8px;
-    transform: rotate(2deg);
-}
-
-/* Watch the ball movement - animation for the watching kitty's pupils */
-.watching-kitty.follow-left .pupil {
-    left: 5px;
-}
-
-.watching-kitty.follow-right .pupil {
-    left: 15px;
-}
-
-.watching-kitty.follow-up .pupil {
-    top: 5px;
-}
-
-.watching-kitty.follow-down .pupil {
-    top: 15px;
-}
-
-/* Enhanced game stats section */
-#game-stats {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 18px;
-    text-shadow: 0 0 10px #ff00ff;
-    position: relative;
-}
-
-#game-score {
-    display: flex;
-    justify-content: space-between;
-    flex: 2;
-}
-
-/* Update the game difficulty (formerly speed) and timer styles */
-#game-difficulty {
-    padding: 5px 10px;
-    border-radius: 8px;
-    background-color: rgba(157, 78, 221, 0.3);
-    border: 2px solid #9d4edd;
-    text-align: center;
-    margin: 0 5px;
-    flex: 1;
-    transition: background-color 0.5s;
-    font-weight: bold;
-}
-
-#game-timer-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 5px;
-}
-
-#game-timer {
-    padding: 3px 8px;
-    border-radius: 8px;
-    background-color: rgba(157, 78, 221, 0.2);
-    border: 1px solid #9d4edd;
-    text-align: center;
-    font-size: 12px;
-    transition: background-color 0.5s;
-    margin-bottom: 5px;
-}
-
-#player-score, #computer-score {
-    width: 60px;
-    text-align: center;
-    padding: 5px 10px;
-    border-radius: 8px;
-    font-weight: bold;
-    transition: transform 0.3s, color 0.3s;
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-}
-
-#player-score::before, #computer-score::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, 
-        rgba(255,0,0,0.3), rgba(255,255,0,0.3), 
-        rgba(0,255,0,0.3), rgba(0,255,255,0.3), 
-        rgba(0,0,255,0.3), rgba(255,0,255,0.3));
-    background-size: 400% 400%;
-    animation: shimmer 3s linear infinite;
-    z-index: -1;
-    opacity: 0.7;
-    border-radius: 8px;
-}
-
-@keyframes shimmer {
-    0% { background-position: 0% 0%; transform: rotate(0deg); }
-    100% { background-position: 100% 100%; transform: rotate(360deg); }
-}
-
-#player-score {
-    background-color: rgba(0, 204, 255, 0.3);
-    border: 2px solid #00ccff;
-}
-
-#computer-score {
-    background-color: rgba(255, 0, 128, 0.3);
-    border: 2px solid #ff0080;
-}
-
-canvas {
-    background-image: linear-gradient(to right bottom, rgba(0,0,0,0.9), rgba(25,0,50,0.85)), 
-                      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath d='M29 28.565c-1.524-5.367-4.03-8.05-7.521-8.05-5.988 0-8.527 9.582-8.527 9.582s-1.211-2.45-4.242-2.45c-1.78 0-3.34.822-4.677 2.464' stroke='rgba(255,100,255,0.2)' stroke-width='2'/%3E%3Cpath d='M48 28.565c-1.524-5.367-4.03-8.05-7.521-8.05-5.988 0-8.527 9.582-8.527 9.582s-1.211-2.45-4.242-2.45c-1.78 0-3.34.822-4.677 2.464' stroke='rgba(100,255,255,0.2)' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: cover;
-    border: 3px solid transparent;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(157, 78, 221, 0.7), inset 0 0 30px rgba(0, 0, 0, 0.7);
-    animation: border-pulse 2s infinite alternate;
-}
-
-@keyframes border-pulse {
-    0% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.6), inset 0 0 30px rgba(0, 0, 0, 0.7); }
-    100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 0, 0, 0.7); }
-}
-
-/* Difficulty indicator pulse (formerly speed-pulse) */
-@keyframes difficulty-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); background-color: rgba(255, 0, 0, 0.5); }
-    100% { transform: scale(1); }
-}
-
-.speed-up {
-    animation: difficulty-pulse 0.5s;
-}
-
-/* Sound button styles */
-.control-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 5px;
-}
-
-#sound-btn {
-    background: linear-gradient(45deg, #ff8800, #ff00cc, #8800ff);
-    background-size: 300% 300%;
-    animation: button-bg 3s ease infinite;
-    padding: 12px 18px;
-    font-size: 16px;
-}
-
-#sound-btn.sound-off {
-    background: linear-gradient(45deg, #888888, #555555, #333333);
-    background-size: 300% 300%;
-    animation: button-bg 3s ease infinite 0.5s;
-    opacity: 0.8;
-}
-
-#sound-btn:hover::before,
-#sound-btn:hover::after {
-    content: "🔊";
-}
-
-#sound-btn.sound-off:hover::before,
-#sound-btn.sound-off:hover::after {
-    content: "🔇";
-}
-
-/* Update the game info container styles */
-#game-info-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-#game-timer, #game-difficulty {
-    padding: 3px 8px;
-    border-radius: 8px;
-    background-color: rgba(157, 78, 221, 0.2);
-    border: 1px solid #9d4edd;
-    text-align: center;
-    font-size: 12px;
-    transition: background-color 0.5s;
-    margin-bottom: 5px;
-    flex: 1;  /* Make both elements take equal space */
-    max-width: 45%;  /* Prevent them from getting too wide */
-    white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Prevent overflow */
-    text-overflow: ellipsis; /* Add ellipsis if text overflows */
-}
-
-/* Mobile-specific styles */
-@media (max-width: 768px) {
-    body {
-        align-items: flex-start;
-        padding-top: 5px; 
-        height: 100%;
-        min-height: 100vh;
-        /* Fix iOS overscroll behavior */
-        position: fixed;
-        width: 100%;
-        overflow: hidden;
-    }
-    
-    .game-container {
-        padding: 10px;
-        padding-top: 110px;
-        width: 95%;
-        max-width: 95vw;
-        margin: 0 auto;
-        transform: translateZ(0); /* Enable hardware acceleration */
-    }
-    
-    .kitty-header h1 {
-        font-size: 24px;
-    }
-    
-    .kitty-emoji {
-        font-size: 24px;
-    }
-    
-    #game-score {
-        margin-bottom: 5px;
-        font-size: 28px;
-    }
-    
-    canvas {
-        width: 100%;
-        height: auto;
-        max-height: 60vh;
-        touch-action: none;
-    }
-    
-    button {
-        padding: 12px 20px;
-        font-size: 16px;
-        /* Increase tap target for mobile */
-        min-height: 44px;
-        min-width: 44px;
-    }
-    
-    .touch-controls {
-        display: flex;
-        width: 100%;
-        height: 80px;
-        margin-top: 10px;
-        gap: 10px;
-    }
-    
-    .mobile-instructions {
-        display: inline;
-    }
-    
-    .mouse-instructions {
-        display: none;
-    }
-    
-    .watching-kitty {
-        top: -50px;
-        transform: translateX(-50%) scale(0.8);
-    }
-    
-    #game-timer, #game-difficulty {
-        font-size: 14px;
-        padding: 5px 10px;
-    }
-    
-    /* Make the sound button more tappable */
-    #sound-btn {
-        min-width: 110px;
-    }
-    
-    /* Fix for iOS Safari viewport issues */
-    @supports (-webkit-touch-callout: none) {
-        /* iOS specific CSS */
-        body {
-            height: -webkit-fill-available;
-        }
-        
-        /* Fix up and down buttons for iOS */
-        .touch-zone {
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        #game-canvas-container {
-            height: 280px; /* Slightly smaller on iOS to prevent scrolling issues */
-        }
-    }
-
-    #game-canvas-container {
-        height: 300px;
-        max-height: 50vh;
-    }
-}
-
-/* Mouse and touch instruction display */
-@media (min-width: 769px) {
-    .touch-controls {
-        display: none;
-    }
-    
-    .mobile-instructions {
-        display: none;
-    }
-    
-    .mouse-instructions {
-        display: inline;
-    }
-
-    #game-canvas-container:hover {
-        cursor: ns-resize; /* Show vertical resize cursor to indicate paddle movement */
-    }
-}
-
-@media (max-width: 768px) {
-    .touch-controls {
-        display: flex;
-        width: 100%;
-        height: 80px;
-        margin-top: 10px;
-    }
-    
-    .mobile-instructions {
-        display: inline;
-    }
-    
-    .mouse-instructions {
-        display: none;
-    }
-}
-
-@media (min-width: 769px) {
-    .touch-controls {
-        display: none;
-    }
-    
-    .mobile-instructions {
-        display: none;
-    }
-}
-
-/* Touch controls styling */
-.touch-controls {
-    position: relative;
-    justify-content: space-between;
-    margin-bottom: 15px;
-}
-
-.touch-zone {
-    width: 48%;
-    height: 100%;
-    border-radius: 15px;
-    background-color: rgba(255, 255, 255, 0.15);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    transition: transform 0.1s ease-out, background-color 0.2s ease;
-}
-
-.touch-zone:after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 0;
-    height: 0;
-    transition: all 0.2s ease;
-}
-
-.touch-up:after {
-    border-left: 18px solid transparent;
-    border-right: 18px solid transparent;
-    border-bottom: 30px solid rgba(255, 255, 255, 0.6);
-}
-
-.touch-down:after {
-    border-left: 18px solid transparent;
-    border-right: 18px solid transparent;
-    border-top: 30px solid rgba(255, 255, 255, 0.6);
-}
-
-.touch-zone.active {
-    background-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
-    transform: scale(1.05);
-    transform: scale(0.98);
-    background-color: rgba(255, 255, 255, 0.25);
-}
-
-.touch-up.active:after {
-    border-bottom-color: rgba(0, 204, 255, 0.8);
-    transform: translate(-50%, -60%);
-}
-
-.touch-down.active:after {
-    border-top-color: rgba(0, 204, 255, 0.8);
-    transform: translate(-50%, -40%);
-}
-
-/* High energy animation for increased difficulty */
-@keyframes high-energy-shake {
-    0% { transform: translate(1px, 1px) rotate(0deg); }
-    10% { transform: translate(-1px, -2px) rotate(-1deg); }
-    20% { transform: translate(-2px, 0px) rotate(1deg); }
-    30% { transform: translate(2px, 2px) rotate(0deg); }
-    40% { transform: translate(1px, -1px) rotate(1deg); }
-    50% { transform: translate(-1px, 2px) rotate(-1deg); }
-    60% { transform: translate(-2px, 1px) rotate(0deg); }
-    70% { transform: translate(2px, 1px) rotate(-1deg); }
-    80% { transform: translate(-1px, -1px) rotate(1deg); }
-    90% { transform: translate(1px, 2px) rotate(0deg); }
-    100% { transform: translate(1px, -2px) rotate(-1deg); }
-}
-
-.high-energy {
-    animation: high-energy-shake 0.5s infinite;
-}
-
-/* Update canvas container styles */
 #game-canvas-container {
-    width: 100%;
-    height: 400px;
-    position: relative;
-    margin: 10px 0;
-    touch-action: none; /* Prevent default touch actions */
-    cursor: pointer; /* Show pointer cursor */
+  position: relative;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 #pong {
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(157, 78, 221, 0.7);
-    touch-action: none;
+  background: transparent;
+  display: block;
 }
 
-/* Mobile responsiveness for 3D canvas */
+/* Watching kitty styles */
+.watching-kitty, .watching-kitty-left, .watching-kitty-right {
+  position: absolute;
+  z-index: 5;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7));
+}
+
+.watching-kitty {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+/* New positioned kitties */
+.watching-kitty-left {
+  top: 40%;
+  left: -60px;
+  transform: scale(0.8);
+  animation: peek-left 8s ease-in-out infinite;
+}
+
+.watching-kitty-right {
+  top: 60%;
+  right: -60px;
+  transform: scale(0.8);
+  animation: peek-right 10s ease-in-out infinite 2s;
+}
+
+@keyframes peek-left {
+  0%, 100% { transform: translateX(0) scale(0.8); }
+  50% { transform: translateX(50px) scale(0.8); }
+}
+
+@keyframes peek-right {
+  0%, 100% { transform: translateX(0) scale(0.8); }
+  50% { transform: translateX(-50px) scale(0.8); }
+}
+
+.kitty-face {
+  width: 80px;
+  height: 80px;
+  background-color: #ffb6c1;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 20px rgba(255, 182, 193, 0.7);
+  animation: color-change 10s linear infinite;
+}
+
+@keyframes color-change {
+  0% { background-color: #ffb6c1; } /* Pink */
+  20% { background-color: #b0e0e6; } /* Light blue */
+  40% { background-color: #ffdab9; } /* Peach */
+  60% { background-color: #c8a2c8; } /* Lilac */
+  80% { background-color: #98fb98; } /* Pale green */
+  100% { background-color: #ffb6c1; } /* Back to pink */
+}
+
+.kitty-ears {
+  position: absolute;
+  width: 100%;
+  top: -15px;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  z-index: -1;
+}
+
+.ear {
+  width: 30px;
+  height: 30px;
+  background-color: #ffb6c1;
+  border-radius: 50% 50% 0 0;
+  position: relative;
+  overflow: hidden;
+  animation: ear-twitch 5s ease-in-out infinite;
+}
+
+@keyframes ear-twitch {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-10deg); }
+}
+
+.ear:before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #ff8fab;
+  border-radius: 50%;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.left-ear {
+  transform-origin: bottom right;
+}
+
+.right-ear {
+  transform-origin: bottom left;
+}
+
+.kitty-eyes {
+  display: flex;
+  justify-content: space-around;
+  width: 70%;
+  margin-bottom: 5px;
+}
+
+.eye {
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pupil {
+  width: 10px;
+  height: 10px;
+  background-color: black;
+  border-radius: 50%;
+  animation: pupil-move 5s ease-in-out infinite;
+}
+
+@keyframes pupil-move {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(2px, -2px); }
+  50% { transform: translate(0, 2px); }
+  75% { transform: translate(-2px, -1px); }
+}
+
+.kitty-nose {
+  width: 10px;
+  height: 6px;
+  background-color: #ff8fab;
+  border-radius: 50%;
+  margin-bottom: 5px;
+}
+
+.kitty-mouth {
+  width: 30px;
+  height: 5px;
+  background: transparent;
+  border-bottom: 2px solid black;
+  border-radius: 0 0 50% 50%;
+}
+
+.kitty-whiskers {
+  position: absolute;
+  width: 100%;
+  top: 45px;
+}
+
+.whisker {
+  position: absolute;
+  width: 25px;
+  height: 1px;
+  background-color: black;
+}
+
+.whisker1 {
+  top: -5px;
+  left: -15px;
+  transform: rotate(10deg);
+}
+
+.whisker2 {
+  left: -18px;
+  transform: rotate(0deg);
+}
+
+.whisker3 {
+  top: 5px;
+  left: -15px;
+  transform: rotate(-10deg);
+}
+
+.whisker4 {
+  top: -5px;
+  right: -15px;
+  transform: rotate(-10deg);
+}
+
+.whisker5 {
+  right: -18px;
+  transform: rotate(0deg);
+}
+
+.whisker6 {
+  top: 5px;
+  right: -15px;
+  transform: rotate(10deg);
+}
+
+/* Game stats and controls */
+#game-stats {
+  text-align: center;
+  margin-bottom: 10px;
+  color: white;
+}
+
+#game-score {
+  display: flex;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+#player-score, #computer-score {
+  padding: 0 15px;
+  text-shadow: 0 0 5px white;
+  animation: score-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes score-pulse {
+  0% { transform: scale(1); color: white; }
+  100% { transform: scale(1.1); color: #ffaaff; }
+}
+
+.controls {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.control-buttons {
+  margin-bottom: 10px;
+}
+
+button {
+  background: linear-gradient(45deg, #ff00cc, #3333ff);
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0 5px;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+  background: linear-gradient(45deg, #ff00cc, #3333ff, #00ccff);
+}
+
+.instructions {
+  color: white;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  text-shadow: 0 0 3px black;
+}
+
+#game-info-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  color: white;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Mobile touch controls */
+.touch-controls {
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.touch-zone {
+  position: absolute;
+  width: 100%;
+  height: 50%;
+  opacity: 0;
+}
+
+.touch-up {
+  top: 0;
+}
+
+.touch-down {
+  bottom: 0;
+}
+
+/* Power-up indicator */
+.powerup-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+  background-size: 400% 400%;
+  animation: rainbow-bg 3s linear infinite;
+  padding: 10px 20px;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  text-shadow: 0 0 5px black;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  font-size: 1.2rem;
+  z-index: 100;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes rainbow-bg {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Paw prints container */
+.paw-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.paw-print {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0;
+  animation: paw-fade 2s forwards;
+}
+
+@keyframes paw-fade {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+
+/* Media queries for responsive design */
 @media (max-width: 768px) {
-    #game-canvas-container {
-        height: 300px;
-    }
+  .mouse-instructions {
+    display: none;
+  }
+  
+  .touch-controls {
+    display: block;
+  }
+  
+  .mobile-instructions {
+    display: inline;
+  }
+
+  .watching-kitty-left, .watching-kitty-right {
+    display: none;
+  }
 }
 
-/* Add ear wiggle animation for when scoring happens */
-@keyframes earWiggle {
-    0% { transform: rotate(-15deg); }
-    25% { transform: rotate(-25deg); }
-    50% { transform: rotate(-5deg); }
-    75% { transform: rotate(-20deg); }
-    100% { transform: rotate(-15deg); }
+@media (min-width: 769px) {
+  .mobile-instructions {
+    display: none;
+  }
 }
 
-@keyframes rightEarWiggle {
-    0% { transform: rotate(15deg); }
-    25% { transform: rotate(25deg); }
-    50% { transform: rotate(5deg); }
-    75% { transform: rotate(20deg); }
-    100% { transform: rotate(15deg); }
+/* Rainbow kitty trail */
+.rainbow-trail {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 1;
+  animation: trail-fade 1s linear forwards;
 }
 
-.left-ear.wiggle {
-    animation: earWiggle 0.5s ease-in-out;
+@keyframes trail-fade {
+  0% { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.2); }
 }
 
-.right-ear.wiggle {
-    animation: rightEarWiggle 0.5s ease-in-out;
+/* Nyan cat style rainbow trail */
+.nyan-trail {
+  position: absolute;
+  width: 30px;
+  height: 10px;
+  z-index: 1;
+  opacity: 0;
+  animation: nyan-fade 0.8s linear forwards;
 }
 
-/* Add a rainbow glow to the kitty eyes when excited */
-.kitty-eyes .eye {
-    position: relative;
-    overflow: hidden;
-}
-
-.kitty-eyes .eye::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background: linear-gradient(90deg, 
-        rgba(255,0,255,0), 
-        rgba(255,0,255,0.2), 
-        rgba(0,255,255,0.2), 
-        rgba(255,255,0,0.2), 
-        rgba(255,0,255,0));
-    background-size: 200% 100%;
-    border-radius: 50%;
-    animation: eyeRainbow 3s linear infinite;
-    opacity: 0;
-    transition: opacity 0.5s;
-    pointer-events: none;
-}
-
-@keyframes eyeRainbow {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-}
-
-.watching-kitty.excited .eye::after {
-    opacity: 1;
-}
-
-/* Make the kitty mouth change on scoring */
-@keyframes mouthHappy {
-    0% { height: 10px; border-radius: 0 0 40% 40%; }
-    50% { height: 15px; border-radius: 0 0 50% 50%; }
-    100% { height: 10px; border-radius: 0 0 40% 40%; }
-}
-
-.kitty-mouth.happy {
-    animation: mouthHappy 0.8s ease-in-out;
+@keyframes nyan-fade {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; transform: scaleX(0.5); }
 }

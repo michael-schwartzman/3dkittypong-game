@@ -525,9 +525,9 @@ document.addEventListener('DOMContentLoaded', () => {
         touchDownActive = false;
     }
 
-    touchUpBtn.addEventListener('touchstart', (e) => handleTouchStart(e, 'up'));
+    touchUpBtn.addEventListener('touchstart', (e) => handleTouchStart(e, 'down')); // Reversed direction
     touchUpBtn.addEventListener('touchend', handleTouchEnd);
-    touchDownBtn.addEventListener('touchstart', (e) => handleTouchStart(e, 'down'));
+    touchDownBtn.addEventListener('touchstart', (e) => handleTouchStart(e, 'up')); // Reversed direction
     touchDownBtn.addEventListener('touchend', handleTouchEnd);
 
     // Sound effects with kitty meows
