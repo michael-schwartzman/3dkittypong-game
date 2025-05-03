@@ -174,6 +174,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Kitty ball trail effect
+    const trailCount = 15;
+    const trailGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+    const trailMaterials = [];
+    const trailParticles = [];
+    
+    // Create trail particles with different colors
+    for (let i = 0; i < trailCount; i++) {
+        // Create gradient colors from blue to pink
+        const hue = (i / trailCount * 0.6) + 0.7; // Range from 0.7 to 1.3 (pink to blue in HSL)
+        const material = new THREE.MeshPhongMaterial({
+            color: new THREE.Color().setHSL(hue % 1, 1, 0.5),
+            transparent: true,
+            opacity: 0.7 * (1 - i / trailCount), // Fade out based on position in trail
+            emissive: new THREE.Color().setHSL(hue % 1, 1, 0.3),
+            emissiveIntensity: 0.5
+        });
+        trailMaterials.push(material);
+        
+        const trailParticle = new THREE.Mesh(trailGeometry, material);
+        trailParticle.visible = false; // Start invisible
+        trailParticle.scale.set(0.2 + (i * 0.05), 0.2 + (i * 0.05), 0.2); // Gradually increase size
+        scene.add(trailParticle);
+        trailParticles.push(trailParticle);
+    }
+    
+    // Function to update the kitty trail
+    function updateKittyTrail() {
+        // Store positions for trail effect (shift each position down the line)
+        for (let i = trailCount - 1; i > 0; i--) {
+            trailParticles[i].position.copy(trailParticles[i - 1].position);
+            trailParticles[i].visible = trailParticles[i - 1].visible;
+            
+            // Update colors based on current kitty face
+            const hue = ((Date.now() * 0.0005) + (i * 0.05)) % 1;
+            trailMaterials[i].color.setHSL(hue, 1, 0.5);
+            trailMaterials[i].emissive.setHSL(hue, 1, 0.3);
+        }
+        
+        // Set the first trail particle to the kitty's current position
+        if (gameState.gameRunning) {
+            trailParticles[0].position.copy(kitty.position);
+            trailParticles[0].visible = true;
+        }
+    }
+
     // Game variables
     const gameState = {
         gameRunning: false,
@@ -588,7 +634,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateBall();
             updateParticles();
             updatePaddleGlow();
-            updateKittyFace(time); // Add this line to update kitty face
+            updateKittyFace(time);
+            updateKittyTrail(); // Add this line to update the kitty trail
 
             // Gradually increase difficulty
             gameState.difficultyMultiplier += 0.0001;
