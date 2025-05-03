@@ -30,13 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
     fieldLines.position.z = -0.5;
     scene.add(fieldLines);
 
-    // Paddle material with glow effect
-    const createPaddleMaterial = (color) => {
+    // Paddle material with enhanced glow effect
+    const createPaddleMaterial = (baseColor) => {
         return new THREE.MeshPhongMaterial({
-            color: color,
+            color: baseColor,
             shininess: 100,
-            emissive: color,
-            emissiveIntensity: 0.5
+            emissive: baseColor,
+            emissiveIntensity: 0.7
         });
     };
 
@@ -49,6 +49,37 @@ document.addEventListener('DOMContentLoaded', () => {
     computerPaddle.position.x = 14;
     scene.add(playerPaddle);
     scene.add(computerPaddle);
+
+    // Create paddle glow effects
+    const playerGlow = new THREE.PointLight(0x00ccff, 1.5, 6, 2);
+    playerGlow.position.set(-14, 0, 0);
+    scene.add(playerGlow);
+
+    const computerGlow = new THREE.PointLight(0xff0080, 1.5, 6, 2);
+    computerGlow.position.set(14, 0, 0);
+    scene.add(computerGlow);
+
+    // Function to update paddle glow effects
+    function updatePaddleGlow() {
+        // Update player paddle glow position and color
+        playerGlow.position.y = playerPaddle.position.y;
+        const playerHue = (Date.now() * 0.0005) % 1;
+        const playerColor = new THREE.Color().setHSL(playerHue, 1, 0.5);
+        playerGlow.color = playerColor;
+        playerPaddle.material.emissive = playerColor;
+        
+        // Update computer paddle glow position and color
+        computerGlow.position.y = computerPaddle.position.y;
+        const computerHue = ((Date.now() * 0.0005) + 0.5) % 1;
+        const computerColor = new THREE.Color().setHSL(computerHue, 1, 0.5);
+        computerGlow.color = computerColor;
+        computerPaddle.material.emissive = computerColor;
+
+        // Add pulsing effect to glow intensity
+        const pulseIntensity = Math.sin(Date.now() * 0.003) * 0.5 + 1.5;
+        playerGlow.intensity = pulseIntensity;
+        computerGlow.intensity = pulseIntensity;
+    }
 
     // Kitty ball (sphere with texture)
     const kittySize = 1;
@@ -461,6 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePaddles();
             updateBall();
             updateParticles();
+            updatePaddleGlow(); // Add this line to update paddle glow
 
             // Gradually increase difficulty
             gameState.difficultyMultiplier += 0.0001;
