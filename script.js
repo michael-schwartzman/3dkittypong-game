@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+// Remove ES6 import and use globally available THREE object
+// import * as THREE from 'three';
 
 document.addEventListener('DOMContentLoaded', () => {
     // Three.js setup
