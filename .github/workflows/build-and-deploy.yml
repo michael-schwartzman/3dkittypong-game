@@ -40,7 +40,7 @@ jobs:
         cd ..
       
     - name: Upload dist.zip as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: dist
         path: dist.zip
