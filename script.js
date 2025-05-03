@@ -529,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
     touchDownBtn.addEventListener('touchstart', (e) => handleTouchStart(e, 'down'));
     touchDownBtn.addEventListener('touchend', handleTouchEnd);
 
-    // Sound effects
+    // Sound effects with kitty meows
     function playSound(type) {
         if (!soundEnabled) return;
 
@@ -537,6 +537,69 @@ document.addEventListener('DOMContentLoaded', () => {
             const context = audioContext || new (window.AudioContext || window.webkitAudioContext)();
             if (!audioContext) audioContext = context;
 
+            // For score sounds, use kitty meows
+            if (type === 'score') {
+                // Create a more fun "meow" sound
+                const oscillator = context.createOscillator();
+                const gainNode = context.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(context.destination);
+                
+                // Random meow type (different for each score)
+                const meowType = Math.floor(Math.random() * 3);
+                
+                if (meowType === 0) {
+                    // Happy meow
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(800, context.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(400, context.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.2);
+                    oscillator.start();
+                    oscillator.stop(context.currentTime + 0.2);
+                } else if (meowType === 1) {
+                    // Playful meow
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(600, context.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(900, context.currentTime + 0.1);
+                    oscillator.frequency.exponentialRampToValueAtTime(400, context.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.2);
+                    oscillator.start();
+                    oscillator.stop(context.currentTime + 0.2);
+                } else {
+                    // Excited meow
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(500, context.currentTime);
+                    oscillator.frequency.linearRampToValueAtTime(900, context.currentTime + 0.1);
+                    oscillator.frequency.exponentialRampToValueAtTime(300, context.currentTime + 0.3);
+                    gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.2, context.currentTime + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
+                    oscillator.start();
+                    oscillator.stop(context.currentTime + 0.3);
+                }
+                
+                // Add a second oscillator for a more complex meow
+                const oscillator2 = context.createOscillator();
+                const gainNode2 = context.createGain();
+                
+                oscillator2.connect(gainNode2);
+                gainNode2.connect(context.destination);
+                
+                oscillator2.type = 'sine';
+                oscillator2.frequency.setValueAtTime(1200, context.currentTime + 0.05);
+                oscillator2.frequency.exponentialRampToValueAtTime(600, context.currentTime + 0.25);
+                gainNode2.gain.setValueAtTime(0.05, context.currentTime + 0.05);
+                gainNode2.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.25);
+                oscillator2.start(context.currentTime + 0.05);
+                oscillator2.stop(context.currentTime + 0.25);
+                
+                return;
+            }
+
+            // For other sound types (paddle, wall), use the original sounds
             const oscillator = context.createOscillator();
             const gainNode = context.createGain();
 
@@ -561,15 +624,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.05);
                     oscillator.start();
                     oscillator.stop(context.currentTime + 0.05);
-                    break;
-                case 'score':
-                    oscillator.type = 'sawtooth';
-                    oscillator.frequency.setValueAtTime(110, context.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(880, context.currentTime + 0.15);
-                    gainNode.gain.setValueAtTime(0.1, context.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.15);
-                    oscillator.start();
-                    oscillator.stop(context.currentTime + 0.15);
                     break;
             }
         } catch (e) {
