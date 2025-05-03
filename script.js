@@ -760,6 +760,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 computerScoreDisplay.classList.remove('score-update');
             }, 1000);
             
+            // Check for score milestone (every 5 points)
+            if (gameState.computerScore % 5 === 0) {
+                createRainbowBurst('computer');
+            }
+            
             resetBall();
         }
         if (kitty.position.x > 15) {
@@ -775,6 +780,11 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 playerScoreDisplay.classList.remove('score-update');
             }, 1000);
+            
+            // Check for score milestone (every 5 points)
+            if (gameState.playerScore % 5 === 0) {
+                createRainbowBurst('player');
+            }
             
             resetBall();
         }
@@ -894,6 +904,186 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Create rainbow burst for score milestones
+    function createRainbowBurst(side) {
+        // Position based on which side hit the milestone
+        const posX = side === 'player' ? 10 : -10;
+        
+        // Create a burst of colorful ring waves
+        const ringCount = 5;
+        const rings = [];
+        
+        for (let i = 0; i < ringCount; i++) {
+            // Create a ring geometry
+            const ringGeometry = new THREE.RingGeometry(0.1, 0.4, 32);
+            const ringMaterial = new THREE.MeshBasicMaterial({
+                color: new THREE.Color().setHSL(i / ringCount, 1, 0.5),
+                transparent: true,
+                opacity: 0.8,
+                side: THREE.DoubleSide
+            });
+            
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.position.set(posX, 0, 2); // Position in front of everything
+            ring.scale.set(0.1, 0.1, 1);
+            ring.userData.expansionSpeed = 0.2;
+            ring.userData.lifetime = 0;
+            ring.userData.maxLifetime = 1500 + (i * 300); // Stagger the lifetimes
+            ring.userData.startDelay = i * 100; // Stagger the start times
+            
+            scene.add(ring);
+            rings.push(ring);
+        }
+        
+        // Add some kitty emoji sprites that fly outward
+        const emojiCount = 10;
+        const emojis = ["😺", "😻", "😸", "😽", "🙀", "💖", "✨", "🌟"];
+        
+        for (let i = 0; i < emojiCount; i++) {
+            // Create a canvas to draw the emoji
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            
+            // Draw random kitty emoji
+            ctx.font = '48px Arial';
+            ctx.fillStyle = `hsla(${Math.random() * 360}, 100%, 70%, 0.9)`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            ctx.fillText(emoji, canvas.width / 2, canvas.height / 2);
+            
+            // Create sprite material
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true
+            });
+            
+            // Create sprite and add to scene
+            const sprite = new THREE.Sprite(material);
+            sprite.position.set(
+                posX,
+                0,
+                1.5
+            );
+            
+            // Random outward velocity
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 0.05 + Math.random() * 0.1;
+            sprite.userData.velocity = new THREE.Vector3(
+                Math.cos(angle) * speed,
+                Math.sin(angle) * speed,
+                0
+            );
+            
+            sprite.userData.rotationSpeed = (Math.random() - 0.5) * 0.1;
+            sprite.userData.lifetime = 0;
+            sprite.userData.maxLifetime = 1500 + Math.random() * 800;
+            
+            sprite.scale.set(1, 1, 1);
+            scene.add(sprite);
+            
+            // Update emoji sprites in animation loop
+            const updateEmoji = () => {
+                sprite.position.add(sprite.userData.velocity);
+                sprite.material.rotation += sprite.userData.rotationSpeed;
+                
+                sprite.userData.lifetime += 16;
+                
+                // Fade out towards end of lifetime
+                if (sprite.userData.lifetime > sprite.userData.maxLifetime - 500) {
+                    const opacity = (sprite.userData.maxLifetime - sprite.userData.lifetime) / 500;
+                    sprite.material.opacity = Math.max(0, opacity);
+                }
+                
+                if (sprite.userData.lifetime < sprite.userData.maxLifetime) {
+                    requestAnimationFrame(updateEmoji);
+                } else {
+                    scene.remove(sprite);
+                    sprite.material.dispose();
+                    if (sprite.material.map) sprite.material.map.dispose();
+                }
+            };
+            
+            requestAnimationFrame(updateEmoji);
+        }
+        
+        // Update and expand rings in animation loop
+        rings.forEach(ring => {
+            const updateRing = () => {
+                ring.userData.lifetime += 16;
+                
+                if (ring.userData.lifetime < ring.userData.startDelay) {
+                    requestAnimationFrame(updateRing);
+                    return;
+                }
+                
+                // Expand the ring
+                ring.scale.x += ring.userData.expansionSpeed;
+                ring.scale.y += ring.userData.expansionSpeed;
+                
+                // Reduce expansion speed over time
+                ring.userData.expansionSpeed *= 0.98;
+                
+                // Fade out towards end of lifetime
+                if (ring.userData.lifetime > ring.userData.maxLifetime - 500) {
+                    const opacity = (ring.userData.maxLifetime - ring.userData.lifetime) / 500;
+                    ring.material.opacity = Math.max(0, opacity);
+                }
+                
+                // Color shift over time
+                const hue = ((ring.userData.lifetime * 0.0005) % 1);
+                ring.material.color.setHSL(hue, 1, 0.5);
+                
+                if (ring.userData.lifetime < ring.userData.maxLifetime) {
+                    requestAnimationFrame(updateRing);
+                } else {
+                    scene.remove(ring);
+                    ring.geometry.dispose();
+                    ring.material.dispose();
+                }
+            };
+            
+            requestAnimationFrame(updateRing);
+        });
+        
+        // Flash the entire screen with a subtle rainbow gradient
+        const flashOverlay = document.createElement('div');
+        flashOverlay.style.position = 'absolute';
+        flashOverlay.style.top = '0';
+        flashOverlay.style.left = '0';
+        flashOverlay.style.width = '100%';
+        flashOverlay.style.height = '100%';
+        flashOverlay.style.background = 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%)';
+        flashOverlay.style.pointerEvents = 'none';
+        flashOverlay.style.zIndex = '100';
+        flashOverlay.style.opacity = '0.7';
+        flashOverlay.style.transition = 'opacity 1s';
+        
+        const gameContainer = document.querySelector('.game-container');
+        gameContainer.appendChild(flashOverlay);
+        
+        // Make the watching kitty excited
+        const watchingKitty = document.querySelector('.watching-kitty');
+        if (watchingKitty) {
+            watchingKitty.classList.add('excited');
+            
+            setTimeout(() => {
+                watchingKitty.classList.remove('excited');
+            }, 2000);
+        }
+        
+        // Fade out and remove the flash overlay
+        setTimeout(() => {
+            flashOverlay.style.opacity = '0';
+            setTimeout(() => {
+                gameContainer.removeChild(flashOverlay);
+            }, 1000);
+        }, 300);
+    }
+
     // Particle system for visual effects
     const particleCount = 150; // Increased from 100
     const particles = new THREE.Points(
@@ -976,9 +1166,10 @@ document.addEventListener('DOMContentLoaded', () => {
             updateParticles();
             updatePaddleGlow();
             updateKittyFace(time);
-            updateKittyTrail(); // Add this line to update the kitty trail
-            updateFieldBoundaries(); // Add this line to update the field boundaries
-            updateBackgroundKitties(time); // Add this line to update the background kitties
+            updateKittyTrail(); 
+            updateFieldBoundaries(); 
+            updateBackgroundKitties(time);
+            updateWatchingKitty(); // Add this line to update the watching kitty
 
             // Gradually increase difficulty
             gameState.difficultyMultiplier += 0.0001;
@@ -992,6 +1183,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
         renderer.render(scene, camera);
         requestAnimationFrame(animate);
+    }
+    
+    // Function to update the watching kitty
+    function updateWatchingKitty() {
+        const watchingKitty = document.querySelector('.watching-kitty');
+        if (!watchingKitty) return;
+        
+        // Make the watching kitty follow the ball position
+        const kittyFace = kitty.position.clone();
+        
+        // Add classes based on ball position
+        watchingKitty.classList.remove('follow-left', 'follow-right', 'follow-up', 'follow-down');
+        
+        if (kittyFace.x < -5) {
+            watchingKitty.classList.add('follow-left');
+        } else if (kittyFace.x > 5) {
+            watchingKitty.classList.add('follow-right');
+        }
+        
+        if (kittyFace.y > 5) {
+            watchingKitty.classList.add('follow-up');
+        } else if (kittyFace.y < -5) {
+            watchingKitty.classList.add('follow-down');
+        }
+        
+        // Change kitty face color randomly when ball hits wall or paddle
+        const leftEar = document.querySelector('.left-ear');
+        const rightEar = document.querySelector('.right-ear');
+        const kittyFaceElem = document.querySelector('.kitty-face');
+        
+        // Make kitty ears wiggle when score changes
+        if (gameState.playerScore > parseInt(playerScoreDisplay.textContent) || 
+            gameState.computerScore > parseInt(computerScoreDisplay.textContent)) {
+            
+            leftEar.style.animation = 'earWiggle 0.5s';
+            rightEar.style.animation = 'earWiggle 0.5s';
+            
+            setTimeout(() => {
+                leftEar.style.animation = '';
+                rightEar.style.animation = '';
+            }, 500);
+            
+            // Change kitty face color
+            const hue = Math.random() * 360;
+            const kittyColor = `hsl(${hue}, 100%, 85%)`;
+            kittyFaceElem.style.background = kittyColor;
+            leftEar.style.borderBottomColor = kittyColor;
+            rightEar.style.borderBottomColor = kittyColor;
+        }
     }
 
     // Handle window resize
