@@ -81,15 +81,98 @@ document.addEventListener('DOMContentLoaded', () => {
         computerGlow.intensity = pulseIntensity;
     }
 
-    // Kitty ball (sphere with texture)
+    // Kitty ball with multiple textures
     const kittySize = 1;
     const kittyGeometry = new THREE.SphereGeometry(kittySize, 32, 32);
-    const kittyMaterial = new THREE.MeshPhongMaterial({
-        color: 0xffc0cb,
-        shininess: 50
-    });
-    const kitty = new THREE.Mesh(kittyGeometry, kittyMaterial);
+    
+    // Create multiple kitty face textures using SVG data URLs
+    const kittyFaces = [
+        createKittyFace('#ffc0cb', '😺'), // Happy kitty
+        createKittyFace('#ffb8de', '😻'), // Heart eyes kitty
+        createKittyFace('#ffa0d0', '😸'), // Grinning kitty
+        createKittyFace('#ff90c8', '😽'), // Kissing kitty
+        createKittyFace('#ff80c0', '🙀')  // Surprised kitty
+    ];
+    
+    function createKittyFace(color, emoji) {
+        // Create a canvas to draw the kitty face
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        
+        // Fill the background with the kitty color
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(128, 128, 128, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Add the emoji face
+        ctx.font = '160px Arial';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(emoji, 128, 118);
+        
+        // Add some whiskers
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.lineWidth = 2;
+        
+        // Left whiskers
+        ctx.beginPath();
+        ctx.moveTo(70, 140);
+        ctx.lineTo(20, 120);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(70, 150);
+        ctx.lineTo(20, 150);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(70, 160);
+        ctx.lineTo(20, 180);
+        ctx.stroke();
+        
+        // Right whiskers
+        ctx.beginPath();
+        ctx.moveTo(186, 140);
+        ctx.lineTo(236, 120);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(186, 150);
+        ctx.lineTo(236, 150);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(186, 160);
+        ctx.lineTo(236, 180);
+        ctx.stroke();
+        
+        // Create texture from canvas
+        const texture = new THREE.CanvasTexture(canvas);
+        return new THREE.MeshPhongMaterial({
+            map: texture,
+            shininess: 50
+        });
+    }
+    
+    // Create kitty ball with initial texture
+    const kitty = new THREE.Mesh(kittyGeometry, kittyFaces[0]);
+    kitty.userData.currentFace = 0;
+    kitty.userData.lastFaceChange = 0;
     scene.add(kitty);
+    
+    // Function to update kitty face
+    function updateKittyFace(time) {
+        // Change face every 2-3 seconds or on collision
+        if (time - kitty.userData.lastFaceChange > 2000 + Math.random() * 1000) {
+            kitty.userData.currentFace = (kitty.userData.currentFace + 1) % kittyFaces.length;
+            kitty.material = kittyFaces[kitty.userData.currentFace];
+            kitty.userData.lastFaceChange = time;
+        }
+    }
 
     // Game variables
     const gameState = {
@@ -380,6 +463,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (kitty.position.y > 9 || kitty.position.y < -9) {
             kitty.userData.velocity.y = -kitty.userData.velocity.y;
             playSound('wall');
+            // Change kitty face on collision
+            kitty.userData.currentFace = (kitty.userData.currentFace + 1) % kittyFaces.length;
+            kitty.material = kittyFaces[kitty.userData.currentFace];
+            kitty.userData.lastFaceChange = Date.now();
         }
 
         // Paddle collisions
@@ -388,6 +475,10 @@ document.addEventListener('DOMContentLoaded', () => {
             kitty.position.y > playerPaddle.position.y - 2) {
             kitty.userData.velocity.x = -kitty.userData.velocity.x * 1.1;
             playSound('paddle');
+            // Change kitty face on collision
+            kitty.userData.currentFace = (kitty.userData.currentFace + 1) % kittyFaces.length;
+            kitty.material = kittyFaces[kitty.userData.currentFace];
+            kitty.userData.lastFaceChange = Date.now();
         }
 
         if (kitty.position.x > 13 && kitty.position.x < 15 &&
@@ -395,6 +486,10 @@ document.addEventListener('DOMContentLoaded', () => {
             kitty.position.y > computerPaddle.position.y - 2) {
             kitty.userData.velocity.x = -kitty.userData.velocity.x * 1.1;
             playSound('paddle');
+            // Change kitty face on collision
+            kitty.userData.currentFace = (kitty.userData.currentFace + 1) % kittyFaces.length;
+            kitty.material = kittyFaces[kitty.userData.currentFace];
+            kitty.userData.lastFaceChange = Date.now();
         }
 
         // Scoring
@@ -492,7 +587,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePaddles();
             updateBall();
             updateParticles();
-            updatePaddleGlow(); // Add this line to update paddle glow
+            updatePaddleGlow();
+            updateKittyFace(time); // Add this line to update kitty face
 
             // Gradually increase difficulty
             gameState.difficultyMultiplier += 0.0001;
