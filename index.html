@@ -11,9 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-    <!-- Updated for Azure Static Web Apps deployment with MORE KITTIES -->
+    <!-- Updated for Azure Static Web Apps deployment -->
     <div class="game-container">
-        <!-- Main watching kitty -->
         <div class="watching-kitty">
             <div class="kitty-face">
                 <div class="kitty-ears">
@@ -37,62 +36,35 @@
             </div>
         </div>
         
-        <!-- New Left Kitty -->
-        <div class="watching-kitty-left">
-            <div class="kitty-face">
-                <div class="kitty-ears">
-                    <div class="ear left-ear"></div>
-                    <div class="ear right-ear"></div>
-                </div>
-                <div class="kitty-eyes">
-                    <div class="eye left-eye"><div class="pupil"></div></div>
-                    <div class="eye right-eye"><div class="pupil"></div></div>
-                </div>
-                <div class="kitty-nose"></div>
-                <div class="kitty-mouth"></div>
-                <div class="kitty-whiskers">
-                    <div class="whisker whisker1"></div>
-                    <div class="whisker whisker2"></div>
-                    <div class="whisker whisker3"></div>
-                    <div class="whisker whisker4"></div>
-                    <div class="whisker whisker5"></div>
-                    <div class="whisker whisker6"></div>
-                </div>
-            </div>
-        </div>
+        <!-- Original corner kitties -->
+        <div class="corner-kitty corner-kitty-top-left">😸</div>
+        <div class="corner-kitty corner-kitty-top-right">😻</div>
+        <div class="corner-kitty corner-kitty-bottom-left">😽</div>
+        <div class="corner-kitty corner-kitty-bottom-right">🙀</div>
         
-        <!-- New Right Kitty -->
-        <div class="watching-kitty-right">
-            <div class="kitty-face">
-                <div class="kitty-ears">
-                    <div class="ear left-ear"></div>
-                    <div class="ear right-ear"></div>
-                </div>
-                <div class="kitty-eyes">
-                    <div class="eye left-eye"><div class="pupil"></div></div>
-                    <div class="eye right-eye"><div class="pupil"></div></div>
-                </div>
-                <div class="kitty-nose"></div>
-                <div class="kitty-mouth"></div>
-                <div class="kitty-whiskers">
-                    <div class="whisker whisker1"></div>
-                    <div class="whisker whisker2"></div>
-                    <div class="whisker whisker3"></div>
-                    <div class="whisker whisker4"></div>
-                    <div class="whisker whisker5"></div>
-                    <div class="whisker whisker6"></div>
-                </div>
-            </div>
-        </div>
+        <!-- New side kitties -->
+        <div class="side-kitty side-kitty-left">😹</div>
+        <div class="side-kitty side-kitty-right">😺</div>
+        <div class="side-kitty side-kitty-top">😻</div>
+        <div class="side-kitty side-kitty-bottom">😽</div>
         
-        <!-- Floating kitty emojis container -->
-        <div class="kitty-emoji-container">
-            <div class="floating-kitty" style="animation-delay: 0s;">🐱</div>
-            <div class="floating-kitty" style="animation-delay: 3s;">😸</div>
-            <div class="floating-kitty" style="animation-delay: 6s;">😻</div>
-            <div class="floating-kitty" style="animation-delay: 9s;">😺</div>
-            <div class="floating-kitty" style="animation-delay: 12s;">🐈</div>
-        </div>
+        <!-- Extra diagonal kitties -->
+        <div class="diagonal-kitty diagonal-kitty-1">😸</div>
+        <div class="diagonal-kitty diagonal-kitty-2">😼</div>
+        <div class="diagonal-kitty diagonal-kitty-3">🙀</div>
+        <div class="diagonal-kitty diagonal-kitty-4">😺</div>
+        
+        <!-- New kitty corners with images -->
+        <div class="kitty-corner top-left"></div>
+        <div class="kitty-corner top-right"></div>
+        <div class="kitty-corner bottom-left"></div>
+        <div class="kitty-corner bottom-right"></div>
+        
+        <!-- Animated kitty paws -->
+        <div class="kitty-paw left-paw">🐾</div>
+        <div class="kitty-paw right-paw">🐾</div>
+        <div class="kitty-paw top-paw">🐾</div>
+        <div class="kitty-paw bottom-paw">🐾</div>
         
         <div class="kitty-header">
             <span class="kitty-emoji">🐱</span>
@@ -100,21 +72,22 @@
             <span class="kitty-emoji">🐱</span>
         </div>
         
-        <div id="game-stats">
-            <div id="game-score">
-                <div id="player-score">0</div>
-                <div id="computer-score">0</div>
+        <div id="score-display">
+            <div id="game-stats">
+                <div id="game-score">
+                    <div id="player-score">0</div>
+                    <div id="computer-score">0</div>
+                </div>
             </div>
         </div>
         
         <div id="game-canvas-container">
             <canvas id="pong"></canvas>
-            <!-- New paw prints container for random paw prints -->
-            <div class="paw-container"></div>
+            <!-- Floating kitties in game area -->
+            <div class="floating-kitty floating-kitty-1">😸</div>
+            <div class="floating-kitty floating-kitty-2">😻</div>
+            <div class="floating-kitty floating-kitty-3">😹</div>
         </div>
-
-        <!-- Power-up indicator -->
-        <div class="powerup-indicator">🌈 RAINBOW KITTY POWER! 🌈</div>
 
         <div class="controls">
             <div class="control-buttons">
@@ -135,9 +108,6 @@
         </div>
         
         <div class="rainbow-border"></div>
-        
-        <!-- Rainbow sparkles container -->
-        <div class="rainbow-sparkles"></div>
     </div>
 
     <!-- Hidden preloaded kitty images -->
@@ -145,11 +115,8 @@
         <img id="kitty1" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRkMwQ0IiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDI4YzEuNjY3IDIgMy42NjcgMyA2IDNzNC4zMzMtMSA2LTMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiNGRkMwQ0IiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 1">
         <img id="kitty2" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNBMEUwRTAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDMwYzEuNjY3LTIgMy42NjctMyA2LTNzNC4zMzMgMSA2IDMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiNBMEUwRTAiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 2">
         <img id="kitty3" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRkQzMDAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTI1IDMwbDQuNSA1TDI1IDQwbC00LjUtNUwyNSAzMHoiIGZpbGw9IiNGRjU3MjIiLz48cGF0aCBkPSJNMjIgMjhsMyAzIDMtM00zOCAxMGwxMCAtNU0xMiAxMEwyIDUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L2c+PC9zdmc+" alt="Kitty 3">
-        <!-- New additional kitty images -->
-        <img id="kitty4" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiM5ZDRlZGQiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDMwYzEuNjY3LTIgMy42NjctMyA2LTNzNC4zMzMgMSA2IDMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiM5ZDRlZGQiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 4">
-        <img id="kitty5" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiMwMGI0ZDgiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTI1IDMwbDQuNSA1TDI1IDQwbC00LjUtNUwyNSAzMHoiIGZpbGw9IiNGRjU3MjIiLz48cGF0aCBkPSJNMjIgMjhsMyAzIDMtM00zOCAxMGwxMCAtNU0xMiAxMEwyIDUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L2c+PC9zdmc+" alt="Kitty 5">
-        <img id="kitty6" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNmZmFhMDAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDI4YzEuNjY3IDIgMy42NjcgMyA2IDNzNC4zMzMtMSA2LTMiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiNmZmFhMDAiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 6">
-        <img id="kitty-rainbow" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJyYWluYm93IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZmYwMDgwOyIvPjxzdG9wIG9mZnNldD0iMjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZmYwMGZmOyIvPjxzdG9wIG9mZnNldD0iNDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojOWQ0ZWRkOyIvPjxzdG9wIG9mZnNldD0iNjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMDBiNGQ4OyIvPjxzdG9wIG9mZnNldD0iODAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMDBmZmNjOyIvPjxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6I2ZmYWEwMDsiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxjaXJjbGUgZmlsbD0idXJsKCNyYWluYm93KSIgY3g9IjI1IiBjeT0iMjUiIHI9IjI1Ii8+PGNpcmNsZSBmaWxsPSIjRkZGIiBjeD0iMTUiIGN5PSIxOCIgcj0iNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjM1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiMwMDAiIGN4PSIxNSIgY3k9IjE4IiByPSIyLjUiLz48Y2lyY2xlIGZpbGw9IiMwMDAiIGN4PSIzNSIgY3k9IjE4IiByPSIyLjUiLz48cGF0aCBkPSJNMjAgMjhjMS42NjcgMiAzLjY2NyAzIDYgM3M0LjMzMy0xIDYtMyIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxwYXRoIGQ9Ik0zOCAxMGwxMCAtNU0xMiAxMEwyIDUiIHN0cm9rZT0idXJsKCNyYWluYm93KSIgc3Ryb2tlLXdpZHRoPSI0IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L2c+PC9zdmc+" alt="Rainbow Kitty">
+        <img id="kitty4" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRjgwQzAiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PHBhdGggZD0iTTE1IDE4YzAuODI4IDAgMS41IDAuNjcyIDEuNSAxLjVzLTAuNjcyIDEuNS0xLjUgMS41LTEuNS0wLjY3Mi0xLjUtMS41IDAuNjcyLTEuNSAxLjUtMS41ek0zNSAxOGMwLjgyOCAwIDEuNSAwLjY3MiAxLjUgMS41cy0wLjY3MiAxLjUtMS41IDEuNS0xLjUtMC42NzItMS41LTEuNSAwLjY3Mi0xLjUgMS41LTEuNXoiIGZpbGw9IiMwMDAiLz48cGF0aCBkPSJNMjUgMzRjLTEuNSAwLTQtMS41LTQtNC41IDAtMyAyLjUtNi41IDQtNi41czQgMy41IDQgNi41YzAgMyAtMi41IDQuNSAtNCA0LjV6IiBmaWxsPSIjRkYwMDU3Ii8+PHBhdGggZD0iTTIyIDI4YzEuNSAwIDMtMS41IDMgMS41czAgNi01LjUgNmgxMWMtNS41IDAtNS41LTMtNS41LTZzMS41LTEuNSAzLTEuNWgtNnYweiIgZmlsbD0iI0ZGRiIvPjxwYXRoIGQ9Ik0yMSAzMGMxLjUgMCAzIC0wLjUgNCAtMC41czIuNSAwLjUgNCAwLjVNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 4">
+        <img id="kitty5" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAiIGhlaWdodD0iNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48Y2lyY2xlIGZpbGw9IiNGRkE1RDYiIGN4PSIyNSIgY3k9IjI1IiByPSIyNSIvPjxjaXJjbGUgZmlsbD0iI0ZGRiIgY3g9IjE1IiBjeT0iMTgiIHI9IjUiLz48Y2lyY2xlIGZpbGw9IiNGRkYiIGN4PSIzNSIgY3k9IjE4IiByPSI1Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMTUiIGN5PSIxOCIgcj0iMi41Ii8+PGNpcmNsZSBmaWxsPSIjMDAwIiBjeD0iMzUiIGN5PSIxOCIgcj0iMi41Ii8+PHBhdGggZD0iTTIwIDI4bDEwIDAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMzggMTBsMTAgLTVNMTIgMTBMMiA1IiBzdHJva2U9IiNGRkE1RDYiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTTIwIDMzYzEuNjY3IDEgMy42NjcgMS41IDYgMS41czQuMzMzIC0wLjUgNiAtMS41IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9nPjwvc3ZnPg==" alt="Kitty 5">
     </div>
     
     <script type="module" src="script.js"></script>
