@@ -1,0 +1,46 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        
+    - name: Create dist directory
+      run: mkdir -p dist
+        
+    - name: Copy game files to dist
+      run: |
+        cp index.html dist/
+        cp style.css dist/
+        cp script.js dist/
+        # Copy any other necessary files
+        # If you have images or other assets in specific folders, add them here
+        # Example: cp -R images dist/
+        # Example: cp -R sounds dist/
+        
+    - name: Create dist.zip
+      run: |
+        cd dist
+        zip -r ../dist.zip .
+        cd ..
+      
+    - name: Upload dist.zip as artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: dist
+        path: dist.zip
