@@ -39,8 +39,11 @@ jobs:
         zip -r ../dist.zip .
         cd ..
       
-    - name: Upload dist.zip as artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: dist
-        path: dist.zip
+    - name: Commit dist.zip to repository
+      if: github.event_name != 'pull_request'
+      run: |
+        git config --global user.name 'GitHub Actions Bot'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add dist.zip
+        git commit -m "Update dist.zip with latest changes [skip ci]" || echo "No changes to commit"
+        git push
