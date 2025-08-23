@@ -1,0 +1,65 @@
+name: Deploy to AKS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: kittypongacr.azurecr.io
+  REPOSITORY: 3dkittypong-game
+  IMAGE_TAG: ${{ github.sha }}
+  AKS_CLUSTER_NAME: kittypong-aks
+  AKS_RESOURCE_GROUP: 3DKittyPongAKS
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Login to Azure Container Registry
+      run: |
+        az acr login --name ${REGISTRY%%.*}
+    
+    - name: Build and push Docker image
+      run: |
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker build -t $REGISTRY/$REPOSITORY:latest .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        docker push $REGISTRY/$REPOSITORY:latest
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_CLUSTER_NAME
+    
+    - name: Deploy to AKS
+      run: |
+        # Update image tag in deployment manifest
+        sed -i "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_TAG|g" k8s/deployment.yaml
+        
+        # Apply Kubernetes manifests
+        kubectl apply -f k8s/
+        
+        # Restart deployment to ensure new image is pulled
+        kubectl rollout restart deployment/3dkittypong-game
+        
+        # Wait for deployment to complete
+        kubectl rollout status deployment/3dkittypong-game --timeout=300s
+    
+    - name: Get service URL
+      run: |
+        echo "Getting service external IP..."
+        kubectl get service 3dkittypong-game-service
