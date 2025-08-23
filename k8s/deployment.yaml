@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: 3dkittypong-game
-        image: kittypongacr.azurecr.io/3dkittypong-game:IMAGE_TAG_PLACEHOLDER
+        image: kittypongacr.azurecr.io/3dkittypong-game:${IMAGE_TAG}
         ports:
         - containerPort: 80
         resources:

@@ -47,14 +47,12 @@ jobs:
     
     - name: Deploy to AKS
       run: |
-        # Update image tag in deployment manifest
-        sed -i "s|IMAGE_TAG_PLACEHOLDER|$IMAGE_TAG|g" k8s/deployment.yaml
+        # Replace image tag placeholder with actual tag
+        envsubst < k8s/deployment.yaml | kubectl apply -f -
         
-        # Apply Kubernetes manifests
-        kubectl apply -f k8s/
-        
-        # Restart deployment to ensure new image is pulled
-        kubectl rollout restart deployment/3dkittypong-game
+        # Apply other Kubernetes manifests
+        kubectl apply -f k8s/service.yaml
+        kubectl apply -f k8s/configmap.yaml
         
         # Wait for deployment to complete
         kubectl rollout status deployment/3dkittypong-game --timeout=300s
