@@ -1,7 +1,9 @@
-name: Deploy to AKS
+name: Continuous Deployment to AKS
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
     branches: [ main ]
   workflow_dispatch:
 
@@ -15,8 +17,26 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     
     steps:
+    - name: Set deployment variables
+      run: |
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          echo "ENVIRONMENT=production" >> $GITHUB_ENV
+          echo "NAMESPACE=default" >> $GITHUB_ENV
+          echo "APP_NAME=kittypong-game" >> $GITHUB_ENV
+          echo "INGRESS_HOST=" >> $GITHUB_ENV
+        else
+          echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+          echo "NAMESPACE=pr-${{ github.event.number || 'staging' }}" >> $GITHUB_ENV
+          echo "APP_NAME=kittypong-game-pr-${{ github.event.number || 'staging' }}" >> $GITHUB_ENV
+          echo "INGRESS_HOST=pr-${{ github.event.number || 'staging' }}.kittypong.local" >> $GITHUB_ENV
+        fi
+        echo "Deploying to: $ENVIRONMENT"
+        echo "Namespace: $NAMESPACE"
+        echo "App name: $APP_NAME"
+    
     - name: Checkout code
       uses: actions/checkout@v4
       
@@ -51,31 +71,76 @@ jobs:
         helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
         helm repo update
         
-        # Install nginx ingress controller
-        helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
-          --create-namespace \
-          --namespace ingress-nginx \
-          --set controller.service.type=LoadBalancer \
-          --wait --timeout=300s
+        # Install nginx ingress controller (only if not already installed)
+        if ! helm list -n ingress-nginx | grep -q ingress-nginx; then
+          helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+            --create-namespace \
+            --namespace ingress-nginx \
+            --set controller.service.type=LoadBalancer \
+            --wait --timeout=300s
+        else
+          echo "nginx ingress controller already installed"
+        fi
+    
+    - name: Create namespace
+      run: |
+        kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
     
     - name: Deploy to AKS
       run: |
-        # Replace image tag placeholder with actual tag
-        envsubst < k8s/deployment.yaml | kubectl apply -f -
+        # Create temporary deployment files with environment-specific values
+        export APP_NAME_ENV=$APP_NAME
+        export NAMESPACE_ENV=$NAMESPACE
         
-        # Apply other Kubernetes manifests
-        kubectl apply -f k8s/service.yaml
-        kubectl apply -f k8s/configmap.yaml
-        kubectl apply -f k8s/ingress.yaml
+        # Update deployment with environment-specific values
+        envsubst < k8s/deployment.yaml | \
+        sed "s/name: kittypong-game/name: $APP_NAME/g" | \
+        sed "s/app: kittypong-game/app: $APP_NAME/g" | \
+        kubectl apply -n $NAMESPACE -f -
+        
+        # Update service with environment-specific values
+        sed "s/name: kittypong-game-service/name: $APP_NAME-service/g" k8s/service.yaml | \
+        sed "s/app: kittypong-game/app: $APP_NAME/g" | \
+        kubectl apply -n $NAMESPACE -f -
+        
+        # Update configmap with environment-specific values
+        sed "s/name: kittypong-game-config/name: $APP_NAME-config/g" k8s/configmap.yaml | \
+        sed "s/app: kittypong-game/app: $APP_NAME/g" | \
+        kubectl apply -n $NAMESPACE -f -
+        
+        # Update ingress with environment-specific values
+        sed "s/name: kittypong-game-ingress/name: $APP_NAME-ingress/g" k8s/ingress.yaml | \
+        sed "s/app: kittypong-game/app: $APP_NAME/g" | \
+        sed "s/name: kittypong-game-service/name: $APP_NAME-service/g" | \
+        kubectl apply -n $NAMESPACE -f -
         
         # Wait for deployment to complete
-        kubectl rollout status deployment/kittypong-game --timeout=300s
+        kubectl rollout status deployment/$APP_NAME -n $NAMESPACE --timeout=300s
     
-    - name: Get ingress URL
+    - name: Get deployment info
       run: |
-        echo "Getting ingress external IP..."
+        echo "=== Deployment Summary ==="
+        echo "Environment: $ENVIRONMENT"
+        echo "Namespace: $NAMESPACE"
+        echo "App Name: $APP_NAME"
+        echo "Image: $REGISTRY/$REPOSITORY:$IMAGE_TAG"
+        echo ""
+        echo "=== Ingress Controller ==="
         kubectl get service -n ingress-nginx ingress-nginx-controller
-        echo "Waiting for ingress to be ready..."
-        kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
-        echo "Ingress controller is ready!"
-        echo "Application will be available at the ingress controller IP"
+        echo ""
+        echo "=== Application Status ==="
+        kubectl get pods -n $NAMESPACE
+        kubectl get service -n $NAMESPACE
+        kubectl get ingress -n $NAMESPACE
+        echo ""
+        if [ "$ENVIRONMENT" = "production" ]; then
+          EXTERNAL_IP=$(kubectl get service -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "🎉 Production deployment complete!"
+          echo "🔗 Application URL: http://$EXTERNAL_IP"
+          echo "🔒 HTTPS URL: https://$EXTERNAL_IP"
+        else
+          EXTERNAL_IP=$(kubectl get service -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "🚀 Staging deployment complete!"
+          echo "🔗 PR Preview URL: http://$EXTERNAL_IP"
+          echo "📝 Namespace: $NAMESPACE"
+        fi

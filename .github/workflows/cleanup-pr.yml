@@ -1,0 +1,57 @@
+name: Clean up PR Environment
+
+on:
+  pull_request:
+    types: [closed]
+
+env:
+  AKS_CLUSTER_NAME: games-multi-tenancy
+  AKS_RESOURCE_GROUP: 3DKittyPongAKS
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == false || github.event.pull_request.merged == true
+    
+    steps:
+    - name: Set cleanup variables
+      run: |
+        echo "NAMESPACE=pr-${{ github.event.number }}" >> $GITHUB_ENV
+        echo "APP_NAME=kittypong-game-pr-${{ github.event.number }}" >> $GITHUB_ENV
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_CLUSTER_NAME
+    
+    - name: Clean up PR environment
+      run: |
+        echo "Cleaning up PR #${{ github.event.number }} environment..."
+        echo "Namespace: $NAMESPACE"
+        echo "App Name: $APP_NAME"
+        
+        # Check if namespace exists
+        if kubectl get namespace $NAMESPACE 2>/dev/null; then
+          echo "Deleting namespace: $NAMESPACE"
+          kubectl delete namespace $NAMESPACE
+          echo "✅ PR environment cleaned up successfully!"
+        else
+          echo "ℹ️ Namespace $NAMESPACE does not exist, nothing to clean up."
+        fi
+    
+    - name: Cleanup summary
+      run: |
+        echo "=== Cleanup Summary ==="
+        echo "PR Number: ${{ github.event.number }}"
+        echo "Namespace: $NAMESPACE (deleted)"
+        echo "App Name: $APP_NAME (removed)"
+        echo "Status: Environment cleanup completed"
