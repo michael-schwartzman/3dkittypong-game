@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: 3dkittypong-game-config
+  name: kittypong-game-config
   labels:
-    app: 3dkittypong-game
+    app: kittypong-game
 data:
   nginx.conf: |
     events {

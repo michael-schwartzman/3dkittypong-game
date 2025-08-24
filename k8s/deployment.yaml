@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: 3dkittypong-game
+  name: kittypong-game
   labels:
-    app: 3dkittypong-game
+    app: kittypong-game
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: 3dkittypong-game
+      app: kittypong-game
   template:
     metadata:
       labels:
-        app: 3dkittypong-game
+        app: kittypong-game
     spec:
       containers:
-      - name: 3dkittypong-game
+      - name: kittypong-game
         image: kittypongacr.azurecr.io/3dkittypong-game:${IMAGE_TAG}
         ports:
         - containerPort: 80

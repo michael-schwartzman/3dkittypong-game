@@ -1,9 +1,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: 3dkittypong-game-ingress
+  name: kittypong-game-ingress
   labels:
-    app: 3dkittypong-game
+    app: kittypong-game
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
@@ -12,7 +12,7 @@ spec:
   tls:
   - hosts:
     - your-domain.com
-    secretName: 3dkittypong-game-tls
+    secretName: kittypong-game-tls
   rules:
   - host: your-domain.com
     http:
@@ -21,6 +21,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: 3dkittypong-game-service
+            name: kittypong-game-service
             port:
               number: 80
