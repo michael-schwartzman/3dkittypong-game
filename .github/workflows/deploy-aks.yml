@@ -9,7 +9,7 @@ env:
   REGISTRY: kittypongacr.azurecr.io
   REPOSITORY: 3dkittypong-game
   IMAGE_TAG: ${{ github.sha }}
-  AKS_CLUSTER_NAME: kittypong-aks
+  AKS_CLUSTER_NAME: games-multi-tenancy
   AKS_RESOURCE_GROUP: 3DKittyPongAKS
 
 jobs:
@@ -45,6 +45,19 @@ jobs:
       run: |
         az aks get-credentials --resource-group $AKS_RESOURCE_GROUP --name $AKS_CLUSTER_NAME
     
+    - name: Install nginx ingress controller
+      run: |
+        # Add nginx ingress helm repo
+        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+        helm repo update
+        
+        # Install nginx ingress controller
+        helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+          --create-namespace \
+          --namespace ingress-nginx \
+          --set controller.service.type=LoadBalancer \
+          --wait --timeout=300s
+    
     - name: Deploy to AKS
       run: |
         # Replace image tag placeholder with actual tag
@@ -53,11 +66,16 @@ jobs:
         # Apply other Kubernetes manifests
         kubectl apply -f k8s/service.yaml
         kubectl apply -f k8s/configmap.yaml
+        kubectl apply -f k8s/ingress.yaml
         
         # Wait for deployment to complete
         kubectl rollout status deployment/kittypong-game --timeout=300s
     
-    - name: Get service URL
+    - name: Get ingress URL
       run: |
-        echo "Getting service external IP..."
-        kubectl get service kittypong-game-service
+        echo "Getting ingress external IP..."
+        kubectl get service -n ingress-nginx ingress-nginx-controller
+        echo "Waiting for ingress to be ready..."
+        kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
+        echo "Ingress controller is ready!"
+        echo "Application will be available at the ingress controller IP"

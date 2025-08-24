@@ -5,17 +5,13 @@ metadata:
   labels:
     app: kittypong-game
   annotations:
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/rewrite-target: /
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
 spec:
-  tls:
-  - hosts:
-    - your-domain.com
-    secretName: kittypong-game-tls
+  ingressClassName: nginx
   rules:
-  - host: your-domain.com
-    http:
+  - http:
       paths:
       - path: /
         pathType: Prefix
