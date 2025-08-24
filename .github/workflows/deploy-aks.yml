@@ -108,11 +108,22 @@ jobs:
         sed "s/app: kittypong-game/app: $APP_NAME/g" | \
         kubectl apply -n $NAMESPACE -f -
         
-        # Update ingress with environment-specific values
-        sed "s/name: kittypong-game-ingress/name: $APP_NAME-ingress/g" k8s/ingress.yaml | \
-        sed "s/app: kittypong-game/app: $APP_NAME/g" | \
-        sed "s/name: kittypong-game-service/name: $APP_NAME-service/g" | \
-        kubectl apply -n $NAMESPACE -f -
+        # Update ingress with environment-specific values and paths
+        if [ "$ENVIRONMENT" = "production" ]; then
+          # Production uses root path
+          sed "s/name: kittypong-game-ingress/name: $APP_NAME-ingress/g" k8s/ingress.yaml | \
+          sed "s/app: kittypong-game/app: $APP_NAME/g" | \
+          sed "s/name: kittypong-game-service/name: $APP_NAME-service/g" | \
+          kubectl apply -n $NAMESPACE -f -
+        else
+          # Staging uses path-based routing to avoid conflicts
+          sed "s/name: kittypong-game-ingress/name: $APP_NAME-ingress/g" k8s/ingress.yaml | \
+          sed "s/app: kittypong-game/app: $APP_NAME/g" | \
+          sed "s/name: kittypong-game-service/name: $APP_NAME-service/g" | \
+          sed "s|path: /|path: /$NAMESPACE|g" | \
+          sed "s|nginx.ingress.kubernetes.io/rewrite-target: /|nginx.ingress.kubernetes.io/rewrite-target: /|g" | \
+          kubectl apply -n $NAMESPACE -f -
+        fi
         
         # Wait for deployment to complete
         kubectl rollout status deployment/$APP_NAME -n $NAMESPACE --timeout=300s
@@ -141,6 +152,8 @@ jobs:
         else
           EXTERNAL_IP=$(kubectl get service -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
           echo "🚀 Staging deployment complete!"
-          echo "🔗 PR Preview URL: http://$EXTERNAL_IP"
+          echo "🔗 PR Preview URL: http://$EXTERNAL_IP/$NAMESPACE"
+          echo "🔒 HTTPS Preview URL: https://$EXTERNAL_IP/$NAMESPACE"
           echo "📝 Namespace: $NAMESPACE"
+          echo "📋 Path: /$NAMESPACE"
         fi
