@@ -1,0 +1,131 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "3D Kitty Pong - Application Metrics",
+    "description": "Application performance monitoring for 3D Kitty Pong game",
+    "tags": ["application", "3d-kitty-pong", "nginx", "web"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "HTTP Requests per Second",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(nginx_ingress_controller_requests_total{service=~\".*kittypong.*\"}[5m])) by (service)",
+            "format": "time_series",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "HTTP Response Codes",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(nginx_ingress_controller_requests_total{service=~\".*kittypong.*\"}[5m])) by (status)",
+            "format": "time_series",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Response Time",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{service=~\".*kittypong.*\"}[5m])) by (le))",
+            "format": "time_series",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        },
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Container Restarts",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"default\",pod=~\".*kittypong.*\"}[1h]))",
+            "format": "time_series",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 16}
+      },
+      {
+        "id": 5,
+        "title": "Active Connections",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(nginx_ingress_controller_nginx_process_connections{controller_class=\"nginx\"})",
+            "format": "time_series",
+            "refId": "E"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Data Transfer",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(nginx_ingress_controller_request_size_bytes_sum{service=~\".*kittypong.*\"}[5m]))",
+            "format": "time_series",
+            "refId": "F",
+            "legendFormat": "Request Size"
+          },
+          {
+            "expr": "sum(rate(nginx_ingress_controller_response_size_bytes_sum{service=~\".*kittypong.*\"}[5m]))",
+            "format": "time_series",
+            "refId": "G",
+            "legendFormat": "Response Size"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "binBps"
+          }
+        },
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 16}
+      }
+    ],
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "15s"
+  }
+}

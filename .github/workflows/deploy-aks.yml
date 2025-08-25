@@ -145,15 +145,21 @@ jobs:
         kubectl get ingress -n $NAMESPACE
         echo ""
         if [ "$ENVIRONMENT" = "production" ]; then
-          EXTERNAL_IP=$(kubectl get service -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          INGRESS_IP=$(kubectl get service -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          DIRECT_IP=$(kubectl get service -n $NAMESPACE kittypong-game-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
           echo "🎉 Production deployment complete!"
-          echo "🔗 Application URL: http://$EXTERNAL_IP"
-          echo "🔒 HTTPS URL: https://$EXTERNAL_IP"
+          echo "🔗 Application URL (Ingress): http://$INGRESS_IP"
+          echo "🔗 Application URL (Direct): http://$DIRECT_IP"
+          echo "🔒 HTTPS URL (Ingress): https://$INGRESS_IP"
+          echo "📊 Grafana Dashboard: https://kittypong-grafana-bfhzd4d7huhsargd.wus2.grafana.azure.com"
         else
-          EXTERNAL_IP=$(kubectl get service -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          INGRESS_IP=$(kubectl get service -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          DIRECT_IP=$(kubectl get service -n $NAMESPACE kittypong-game-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
           echo "🚀 Staging deployment complete!"
-          echo "🔗 PR Preview URL: http://$EXTERNAL_IP/$NAMESPACE"
-          echo "🔒 HTTPS Preview URL: https://$EXTERNAL_IP/$NAMESPACE"
+          echo "🔗 PR Preview URL (Ingress): http://$INGRESS_IP/$NAMESPACE"
+          echo "🔗 PR Preview URL (Direct): http://$DIRECT_IP"
+          echo "🔒 HTTPS Preview URL: https://$INGRESS_IP/$NAMESPACE"
           echo "📝 Namespace: $NAMESPACE"
           echo "📋 Path: /$NAMESPACE"
+          echo "📊 Grafana Dashboard: https://kittypong-grafana-bfhzd4d7huhsargd.wus2.grafana.azure.com"
         fi
