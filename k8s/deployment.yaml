@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: kittypong-game
-        image: kittypongacr.azurecr.io/3dkittypong-game:${IMAGE_TAG}
+        image: kittypongacr.azurecr.io/3dkittypong:latest
         ports:
         - containerPort: 80
         resources:
@@ -38,3 +38,11 @@ spec:
             port: 80
           initialDelaySeconds: 15
           periodSeconds: 20
+        volumeMounts:
+        - name: inline-html
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
+      volumes:
+      - name: inline-html
+        configMap:
+          name: kittypong-inline-html

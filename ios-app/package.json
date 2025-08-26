@@ -1,0 +1,30 @@
+{
+  "name": "kitty-pong-ios",
+  "version": "1.0.0",
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build:ios": "expo build:ios",
+    "build:android": "expo build:android"
+  },
+  "dependencies": {
+    "expo": "~49.0.0",
+    "expo-gl": "~13.2.0",
+    "expo-gl-cpp": "~12.2.0",
+    "expo-three": "~7.0.0",
+    "react": "18.2.0",
+    "react-native": "0.72.6",
+    "three": "^0.160.0",
+    "expo-haptics": "~12.4.0",
+    "expo-audio": "~13.4.0",
+    "expo-screen-orientation": "~6.0.0",
+    "react-native-gesture-handler": "~2.12.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  },
+  "private": true
+}

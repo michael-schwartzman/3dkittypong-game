@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
 
 env:
@@ -15,7 +16,41 @@ env:
   AKS_RESOURCE_GROUP: 3DKittyPongAKS
 
 jobs:
+  cleanup-pr:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group ${{ env.AKS_RESOURCE_GROUP }} --name ${{ env.AKS_CLUSTER_NAME }}
+    
+    - name: Cleanup PR environment
+      run: |
+        PR_NAMESPACE="pr-${{ github.event.number }}"
+        echo "🧹 Cleaning up PR environment: $PR_NAMESPACE"
+        
+        # Delete namespace (this will delete all resources in it)
+        if kubectl get namespace $PR_NAMESPACE 2>/dev/null; then
+          kubectl delete namespace $PR_NAMESPACE
+          echo "✅ Deleted namespace: $PR_NAMESPACE"
+        else
+          echo "ℹ️ Namespace $PR_NAMESPACE not found - already cleaned up"
+        fi
+        
+        echo "🎉 PR environment cleanup complete!"
+
   build-and-deploy:
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     
