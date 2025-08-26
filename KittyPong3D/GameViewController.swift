@@ -1,29 +1,14 @@
 import UIKit
-import SceneKit
+import WebKit
 
 class GameViewController: UIViewController {
     
-    @IBOutlet weak var sceneView: SCNView!
-    @IBOutlet weak var scoreLabel: UILabel!
-    @IBOutlet weak var gameInfoLabel: UILabel!
-    @IBOutlet weak var startButton: UIButton!
-    
-    var gameScene: GameScene!
-    var gameLogic: GameLogic!
-    var soundManager: SoundManager!
+    private var webView: WKWebView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        setupUI()
-        setupGame()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        // Landscape orientation is handled by Info.plist settings
-        // No need to programmatically set orientation
+        setupWebView()
+        loadGame()
     }
     
     override var shouldAutorotate: Bool {
@@ -34,142 +19,139 @@ class GameViewController: UIViewController {
         return .all
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate(alongsideTransition: { _ in
+            // Update WebView frame during rotation to match screen
+            let screenBounds = UIScreen.main.bounds
+            self.webView.frame = screenBounds
+        }, completion: { _ in
+            // Force a viewport refresh after rotation
+            self.webView.evaluateJavaScript("""
+                window.dispatchEvent(new Event('resize'));
+                if (window.handleResize) window.handleResize();
+            """)
+        })
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Ensure WebView always matches screen bounds
+        webView.frame = UIScreen.main.bounds
+    }
+    
     override var prefersStatusBarHidden: Bool {
         return true
     }
     
-    private func setupUI() {
-        view.backgroundColor = .black
+    private func setupWebView() {
+        // Configure WebView for optimal game performance
+        let configuration = WKWebViewConfiguration()
+        configuration.allowsInlineMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
+        configuration.allowsPictureInPictureMediaPlayback = false
+        configuration.suppressesIncrementalRendering = false
         
-        // Configure scene view if connected
-        if let sceneView = sceneView {
-            sceneView.backgroundColor = .black
-            sceneView.allowsCameraControl = false
-            sceneView.showsStatistics = false
-            sceneView.antialiasingMode = .none
-            sceneView.preferredFramesPerSecond = 30 // Reduce to 30fps for performance
-            sceneView.rendersContinuously = false // Only render when needed
-            sceneView.jitteringEnabled = false
-            sceneView.isTemporalAntialiasingEnabled = false
+        // Enable JavaScript and modern web features
+        let preferences = WKWebpagePreferences()
+        preferences.allowsContentJavaScript = true
+        configuration.defaultWebpagePreferences = preferences
+        
+        // Performance optimizations
+        if #available(iOS 14.0, *) {
+            configuration.limitsNavigationsToAppBoundDomains = false
         }
         
-        // Setup labels if connected
-        if let scoreLabel = scoreLabel {
-            scoreLabel.textColor = .systemGreen
-            scoreLabel.font = .boldSystemFont(ofSize: 32)
-            scoreLabel.text = "0 - 0"
+        // Add user scripts for immediate viewport setup
+        let viewportScript = WKUserScript(source: """
+            var meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+        """, injectionTime: .atDocumentStart, forMainFrameOnly: true)
+        configuration.userContentController.addUserScript(viewportScript)
+        
+        // Create and configure WebView with full screen bounds
+        let screenBounds = UIScreen.main.bounds
+        webView = WKWebView(frame: screenBounds, configuration: configuration)
+        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        webView.navigationDelegate = self
+        webView.scrollView.isScrollEnabled = false
+        webView.scrollView.bounces = false
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+        webView.scrollView.scrollsToTop = false
+        webView.scrollView.showsHorizontalScrollIndicator = false
+        webView.scrollView.showsVerticalScrollIndicator = false
+        webView.scrollView.contentMode = .scaleToFill
+        webView.backgroundColor = .black
+        webView.isOpaque = false
+        webView.allowsBackForwardNavigationGestures = false
+        
+        // Force the WebView to use device pixel density
+        if #available(iOS 14.0, *) {
+            webView.pageZoom = 1.0
         }
         
-        if let gameInfoLabel = gameInfoLabel {
-            gameInfoLabel.textColor = .white
-            gameInfoLabel.font = .systemFont(ofSize: 16)
-            gameInfoLabel.text = "Time: 0s | Diffulkitty: 1x"
-        }
-        
-        // Setup start button if connected
-        if let startButton = startButton {
-            startButton.setTitle("🐾 START GAME 🐾", for: .normal)
-            startButton.titleLabel?.font = .boldSystemFont(ofSize: 20)
-            startButton.backgroundColor = UIColor(red: 0.62, green: 0.31, blue: 0.87, alpha: 1.0)
-            startButton.layer.cornerRadius = 25
-            startButton.addTarget(self, action: #selector(startButtonTapped), for: .touchUpInside)
-        }
-        
-        // Don't set up constraints programmatically since they're in storyboard
+        // Add to view hierarchy
+        view.addSubview(webView)
     }
     
-    
-    private func setupGame() {
-        soundManager = SoundManager()
+    private func loadGame() {
+        // Load the live website
+        if let url = URL(string: "https://kittie.schwartzman.org/") {
+            let request = URLRequest(url: url)
+            webView.load(request)
+        }
+    }
+}
+
+// MARK: - WKNavigationDelegate
+extension GameViewController: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // Get screen dimensions for aggressive scaling
+        let screenWidth = UIScreen.main.bounds.width
+        let screenHeight = UIScreen.main.bounds.height
         
-        // Create scene in background to avoid blocking main thread
-        DispatchQueue.global(qos: .userInitiated).async {
-            let scene = GameScene()
-            let logic = GameLogic(scene: scene)
-            
-            DispatchQueue.main.async {
-                self.gameScene = scene
-                self.gameLogic = logic
-                
-                if let sceneView = self.sceneView {
-                    sceneView.scene = scene
-                    sceneView.delegate = self
-                    
-                    // Set up touch handling
-                    let panGesture = UIPanGestureRecognizer(target: self, action: #selector(self.handlePanGesture(_:)))
-                    sceneView.addGestureRecognizer(panGesture)
-                }
-                
-                logic.delegate = self
-                
-                // Pre-warm the renderer
-                sceneView?.prepare([scene]) { success in
-                    // Scene preparation completed
-                }
+        webView.evaluateJavaScript("""
+            // Simple viewport setup for better mobile experience
+            let viewport = document.querySelector('meta[name="viewport"]');
+            if (!viewport) {
+                viewport = document.createElement('meta');
+                viewport.name = 'viewport';
+                document.head.appendChild(viewport);
             }
-        }
-    }
-    
-    @objc private func startButtonTapped() {
-        startButton?.isHidden = true
-        gameLogic.startGame()
-        soundManager.playStartSound()
-    }
-    
-    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-        guard let sceneView = sceneView else { return }
-        let location = gesture.location(in: sceneView)
-        let normalizedY = Float((location.y / sceneView.frame.height) * 2 - 1) // Convert to -1 to 1 range
-        gameLogic.updatePlayerPaddle(normalizedPosition: -normalizedY) // Invert Y for natural movement
-    }
-    
-    private func updateUI() {
-        DispatchQueue.main.async {
-            let score = self.gameLogic.getScore()
-            self.scoreLabel?.text = "\(score.player) - \(score.computer)"
+            viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
             
-            let gameInfo = self.gameLogic.getGameInfo()
-            self.gameInfoLabel?.text = "Time: \(gameInfo.time)s | Diffulkitty: \(gameInfo.difficulty)x"
-        }
-    }
-}
-
-// MARK: - SCNSceneRendererDelegate
-extension GameViewController: SCNSceneRendererDelegate {
-    func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
-        gameLogic.update(time: time)
-        updateUI()
-    }
-}
-
-// MARK: - GameLogicDelegate
-extension GameViewController: GameLogicDelegate {
-    func didScore(isPlayer: Bool) {
-        soundManager.playScoreSound(isPlayer: isPlayer)
+            // Only prevent pinch zoom, allow other gestures for game interaction
+            document.addEventListener('gesturestart', function (e) {
+                e.preventDefault();
+            });
+            
+            // Initialize audio context on first touch for iOS
+            document.addEventListener('touchstart', function() {
+                if (typeof initAudioContext === 'function') {
+                    initAudioContext();
+                }
+            }, { once: true });
+        """)
         
-        // Add haptic feedback
-        let impact = UIImpactFeedbackGenerator(style: isPlayer ? .heavy : .medium)
-        impact.impactOccurred()
     }
     
-    func didHitPaddle() {
-        soundManager.playHitSound()
-        
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        showErrorMessage("Failed to load game: \(error.localizedDescription)")
     }
     
-    func didHitWall() {
-        soundManager.playWallHitSound()
-        
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        showErrorMessage("Network error: \(error.localizedDescription)")
     }
     
-    func gameDidEnd() {
-        DispatchQueue.main.async {
-            self.startButton?.isHidden = false
-            self.startButton?.setTitle("🐾 PLAY AGAIN 🐾", for: .normal)
-        }
+    private func showErrorMessage(_ message: String) {
+        let alert = UIAlertController(title: "Connection Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Retry", style: .default) { _ in
+            self.loadGame()
+        })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
     }
 }
