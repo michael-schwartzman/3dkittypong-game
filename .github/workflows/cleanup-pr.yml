@@ -3,6 +3,12 @@ name: Clean up PR Environment
 on:
   pull_request:
     types: [closed]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to clean up'
+        required: true
+        type: string
 
 env:
   AKS_CLUSTER_NAME: games-multi-tenancy
@@ -11,13 +17,20 @@ env:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == false || github.event.pull_request.merged == true
+    # Only run cleanup when PR is closed (merged or rejected)
     
     steps:
     - name: Set cleanup variables
       run: |
-        echo "NAMESPACE=pr-${{ github.event.number }}" >> $GITHUB_ENV
-        echo "APP_NAME=kittypong-game-pr-${{ github.event.number }}" >> $GITHUB_ENV
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "PR_NUMBER=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+          echo "NAMESPACE=pr-${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+          echo "APP_NAME=kittypong-game-pr-${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+        else
+          echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+          echo "NAMESPACE=pr-${{ github.event.number }}" >> $GITHUB_ENV
+          echo "APP_NAME=kittypong-game-pr-${{ github.event.number }}" >> $GITHUB_ENV
+        fi
     
     - name: Azure Login
       uses: azure/login@v1
@@ -35,14 +48,23 @@ jobs:
     
     - name: Clean up PR environment
       run: |
-        echo "Cleaning up PR #${{ github.event.number }} environment..."
+        PR_NUM="${{ github.event.number || github.event.inputs.pr_number }}"
+        echo "Cleaning up PR #$PR_NUM environment..."
         echo "Namespace: $NAMESPACE"
         echo "App Name: $APP_NAME"
         
         # Check if namespace exists
         if kubectl get namespace $NAMESPACE 2>/dev/null; then
-          echo "Deleting namespace: $NAMESPACE"
-          kubectl delete namespace $NAMESPACE
+          echo "Found namespace $NAMESPACE, cleaning up resources..."
+          
+          # Delete all resources in the namespace first
+          kubectl delete all --all -n $NAMESPACE --timeout=60s || true
+          kubectl delete ingress --all -n $NAMESPACE --timeout=30s || true
+          kubectl delete configmap --all -n $NAMESPACE --timeout=30s || true
+          kubectl delete secret --all -n $NAMESPACE --timeout=30s || true
+          
+          # Delete the namespace
+          kubectl delete namespace $NAMESPACE --timeout=60s
           echo "✅ PR environment cleaned up successfully!"
         else
           echo "ℹ️ Namespace $NAMESPACE does not exist, nothing to clean up."
@@ -51,7 +73,10 @@ jobs:
     - name: Cleanup summary
       run: |
         echo "=== Cleanup Summary ==="
-        echo "PR Number: ${{ github.event.number }}"
+        echo "PR Number: ${{ github.event.number || github.event.inputs.pr_number }}"
         echo "Namespace: $NAMESPACE (deleted)"
         echo "App Name: $APP_NAME (removed)"
         echo "Status: Environment cleanup completed"
+        echo ""
+        echo "Remaining namespaces:"
+        kubectl get namespaces | grep -E "(pr-|default|ingress)" || echo "No PR namespaces remaining"
