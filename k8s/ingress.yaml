@@ -1,17 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: kittypong-game-ingress
+  name: kittypong-game-main-ingress
   labels:
     app: kittypong-game
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "false"
 spec:
   ingressClassName: nginx
   rules:
-  - http:
+  - host: kittie.schwartzman.org
+    http:
       paths:
       - path: /
         pathType: Prefix
