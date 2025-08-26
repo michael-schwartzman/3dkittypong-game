@@ -5,11 +5,15 @@ metadata:
   labels:
     app: kittypong-game
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/use-regex: "false"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
 spec:
   ingressClassName: nginx
+  tls:
+  - hosts:
+    - kittie.schwartzman.org
+    secretName: kittie-schwartzman-org-tls
   rules:
   - host: kittie.schwartzman.org
     http:
