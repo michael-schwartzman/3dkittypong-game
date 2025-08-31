@@ -13,25 +13,19 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '16'
+        node-version: '18.x'
+        cache: 'npm'
         
-    - name: Create dist directory
-      run: mkdir -p dist
+    - name: Install dependencies
+      run: npm ci
         
-    - name: Copy game files to dist
-      run: |
-        cp index.html dist/
-        cp style.css dist/
-        cp script.js dist/
-        # Copy any other necessary files
-        # If you have images or other assets in specific folders, add them here
-        # Example: cp -R images dist/
-        # Example: cp -R sounds dist/
+    - name: Build project
+      run: npm run build
         
     - name: Create dist.zip
       run: |
@@ -40,7 +34,8 @@ jobs:
         cd ..
       
     - name: Upload dist.zip as artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: dist
         path: dist.zip
+        retention-days: 7
