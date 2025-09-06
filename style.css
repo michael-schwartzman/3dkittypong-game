@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 :root {
+    /* Default theme (dark) */
     --primary-color: #ff66c4;
     --secondary-color: #6600ff;
     --accent-color: #00ffcc;
@@ -12,6 +13,49 @@
     --kitty-blue: #66ccff;
     --kitty-yellow: #ffee00;
     --kitty-purple: #cc33ff;
+    --gradient-start: #120021;
+    --gradient-mid: #300639;
+    --gradient-end: #120021;
+    --game-bg: rgba(0, 0, 0, 0.7);
+    --canvas-bg: rgba(0, 0, 0, 0.5);
+}
+
+/* Light theme */
+.theme-light {
+    --primary-color: #e91e63;
+    --secondary-color: #9c27b0;
+    --accent-color: #00bcd4;
+    --background-color: #f8f9fa;
+    --text-color: #212529;
+    --border-color: #e91e63;
+    --kitty-pink: #f8bbd9;
+    --kitty-blue: #b3e5fc;
+    --kitty-yellow: #fff9c4;
+    --kitty-purple: #e1bee7;
+    --gradient-start: #e8f5e8;
+    --gradient-mid: #f0f8ff;
+    --gradient-end: #fdf2f8;
+    --game-bg: rgba(255, 255, 255, 0.9);
+    --canvas-bg: rgba(255, 255, 255, 0.7);
+}
+
+/* Dark theme (explicit for clarity) */
+.theme-dark {
+    --primary-color: #ff66c4;
+    --secondary-color: #6600ff;
+    --accent-color: #00ffcc;
+    --background-color: #120021;
+    --text-color: #ffffff;
+    --border-color: #ff00ff;
+    --kitty-pink: #ffb8de;
+    --kitty-blue: #66ccff;
+    --kitty-yellow: #ffee00;
+    --kitty-purple: #cc33ff;
+    --gradient-start: #120021;
+    --gradient-mid: #300639;
+    --gradient-end: #120021;
+    --game-bg: rgba(0, 0, 0, 0.7);
+    --canvas-bg: rgba(0, 0, 0, 0.5);
 }
 
 /* Full screen responsive styling */
@@ -27,7 +71,7 @@ html, body {
 }
 
 body {
-    background: linear-gradient(135deg, #120021, #300639, #120021);
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
     margin: 0;
@@ -38,11 +82,12 @@ body {
     height: 100vh;
     width: 100vw;
     font-family: 'Arial', sans-serif;
-    color: white;
+    color: var(--text-color);
     overflow: hidden;
     /* Disable pull-to-refresh and overscroll behavior for mobile */
     overscroll-behavior: none;
     touch-action: manipulation;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 @keyframes gradient {
@@ -109,7 +154,7 @@ body {
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 0 40px rgba(255, 0, 255, 0.8), 0 0 80px rgba(0, 255, 255, 0.5), 0 0 120px rgba(255, 255, 0, 0.4); /* Enhanced glow with extra color */
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: var(--game-bg);
     border: 3px solid transparent;
     background-clip: padding-box;
     position: relative;
@@ -123,6 +168,7 @@ body {
     max-width: 1600px; /* Increased from 1400px for larger screens */
     height: 98vh; /* And taller (increased from 90vh) */
     max-height: 1000px; /* Increased from 900px for larger screens */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Header with kitty title */
@@ -273,8 +319,9 @@ body {
     overflow: hidden;
     border-radius: 8px;
     box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3);
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--canvas-bg);
     margin-bottom: 15px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 #pong {
@@ -1246,21 +1293,21 @@ button:hover::after {
     100% { background-position: 100% 50%; }
 }
 
-/* Sound button */
-.sound-on, .sound-off {
+/* Sound and Theme button styles */
+.sound-on, .sound-off, .theme-dark, .theme-light {
     position: relative;
     overflow: hidden;
 }
 
-.sound-on {
+.sound-on, .theme-dark {
     background: linear-gradient(45deg, #00ccff, #0066ff);
 }
 
-.sound-off {
+.sound-off, .theme-light {
     background: linear-gradient(45deg, #ff6699, #cc0066);
 }
 
-.sound-on::after, .sound-off::after {
+.sound-on::after, .sound-off::after, .theme-dark::after, .theme-light::after {
     content: '';
     position: absolute;
     top: -50%;
