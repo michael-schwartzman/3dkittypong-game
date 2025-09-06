@@ -425,6 +425,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Theme toggle
+    const themeBtn = document.getElementById('theme-btn');
+    let isDarkTheme = true;
+
+    // Load saved theme preference or default to dark
+    const savedTheme = localStorage.getItem('kitty-pong-theme');
+    if (savedTheme) {
+        isDarkTheme = savedTheme === 'dark';
+    }
+
+    // Apply initial theme
+    function applyTheme(darkMode) {
+        const body = document.body;
+        if (darkMode) {
+            body.classList.remove('theme-light');
+            body.classList.add('theme-dark');
+            themeBtn.classList.remove('theme-light');
+            themeBtn.classList.add('theme-dark');
+            themeBtn.textContent = '☀️ Light';
+        } else {
+            body.classList.remove('theme-dark');
+            body.classList.add('theme-light');
+            themeBtn.classList.remove('theme-dark');
+            themeBtn.classList.add('theme-light');
+            themeBtn.textContent = '🌙 Dark';
+        }
+        
+        // Update Three.js scene colors if needed
+        updateSceneColors(darkMode);
+        
+        // Save theme preference
+        localStorage.setItem('kitty-pong-theme', darkMode ? 'dark' : 'light');
+    }
+
+    // Theme toggle event listener
+    themeBtn.addEventListener('click', () => {
+        isDarkTheme = !isDarkTheme;
+        applyTheme(isDarkTheme);
+    });
+
+    // Apply initial theme
+    applyTheme(isDarkTheme);
+
+    // Function to update Three.js scene colors based on theme
+    function updateSceneColors(darkMode) {
+        if (fieldMaterial) {
+            fieldMaterial.color.setHex(darkMode ? 0x9d4edd : 0x6366f1);
+        }
+        if (renderer) {
+            renderer.setClearColor(darkMode ? 0x000000 : 0xf8f9fa, darkMode ? 0.1 : 0.8);
+        }
+    }
+
     // Enhanced keyboard controls
     const keys = {
         w: false,
