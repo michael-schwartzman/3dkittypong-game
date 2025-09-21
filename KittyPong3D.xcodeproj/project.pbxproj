@@ -13,6 +13,10 @@
 		8B123AC32B1D7F4A00123456 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8B123AC12B1D7F4A00123456 /* Main.storyboard */; };
 		8B123AC52B1D7F4A00123456 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B123AC42B1D7F4A00123456 /* Assets.xcassets */; };
 		8B123AC82B1D7F4A00123456 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8B123AC62B1D7F4A00123456 /* LaunchScreen.storyboard */; };
+		8B123AD02B1D7F4A00123456 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B123ACF2B1D7F4A00123456 /* GameScene.swift */; };
+		8B123AD22B1D7F4A00123456 /* GameLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B123AD12B1D7F4A00123456 /* GameLogic.swift */; };
+		8B123AD42B1D7F4A00123456 /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B123AD32B1D7F4A00123456 /* SoundManager.swift */; };
+		8B123AD62B1D7F4A00123456 /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B123AD52B1D7F4A00123456 /* SceneKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +28,10 @@
 		8B123AC42B1D7F4A00123456 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8B123AC72B1D7F4A00123456 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8B123AC92B1D7F4A00123456 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8B123ACF2B1D7F4A00123456 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		8B123AD12B1D7F4A00123456 /* GameLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameLogic.swift; sourceTree = "<group>"; };
+		8B123AD32B1D7F4A00123456 /* SoundManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundManager.swift; sourceTree = "<group>"; };
+		8B123AD52B1D7F4A00123456 /* SceneKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SceneKit.framework; path = System/Library/Frameworks/SceneKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B123AD62B1D7F4A00123456 /* SceneKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +51,7 @@
 			children = (
 				8B123ABA2B1D7F4A00123456 /* KittyPong3D */,
 				8B123AB92B1D7F4A00123456 /* Products */,
+				8B123AD72B1D7F4A00123456 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -59,12 +69,23 @@
 				8B123ABB2B1D7F4A00123456 /* AppDelegate.swift */,
 				8B123ABD2B1D7F4A00123456 /* SceneDelegate.swift */,
 				8B123ABF2B1D7F4A00123456 /* GameViewController.swift */,
+				8B123ACF2B1D7F4A00123456 /* GameScene.swift */,
+				8B123AD12B1D7F4A00123456 /* GameLogic.swift */,
+				8B123AD32B1D7F4A00123456 /* SoundManager.swift */,
 				8B123AC12B1D7F4A00123456 /* Main.storyboard */,
 				8B123AC42B1D7F4A00123456 /* Assets.xcassets */,
 				8B123AC62B1D7F4A00123456 /* LaunchScreen.storyboard */,
 				8B123AC92B1D7F4A00123456 /* Info.plist */,
 			);
 			path = KittyPong3D;
+			sourceTree = "<group>";
+		};
+		8B123AD72B1D7F4A00123456 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8B123AD52B1D7F4A00123456 /* SceneKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -139,6 +160,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8B123AC02B1D7F4A00123456 /* GameViewController.swift in Sources */,
+				8B123AD02B1D7F4A00123456 /* GameScene.swift in Sources */,
+				8B123AD22B1D7F4A00123456 /* GameLogic.swift in Sources */,
+				8B123AD42B1D7F4A00123456 /* SoundManager.swift in Sources */,
 				8B123ABC2B1D7F4A00123456 /* AppDelegate.swift in Sources */,
 				8B123ABE2B1D7F4A00123456 /* SceneDelegate.swift in Sources */,
 			);
