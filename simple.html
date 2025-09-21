@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Kitty Pong Game - WORKING VERSION</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <style>
+        body { margin: 0; padding: 20px; background: #000; color: #fff; font-family: Arial; text-align: center; }
+        #game { width: 800px; height: 600px; margin: 20px auto; border: 2px solid #fff; }
+        h1 { color: #ff69b4; margin-bottom: 10px; }
+        .controls { margin: 20px 0; }
+        button { background: #ff69b4; color: white; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #ff1493; }
+        .score { font-size: 24px; margin: 10px 0; }
+        .instructions { font-size: 14px; color: #ccc; }
+    </style>
+</head>
+<body>
+    <h1>🐱 3D KITTY PONG 🐱</h1>
+    <div class="score">Player: <span id="player-score">0</span> | Computer: <span id="computer-score">0</span></div>
+    <canvas id="game" width="800" height="600"></canvas>
+    <div class="controls">
+        <button id="start-btn">Start Game</button>
+        <button id="sound-btn">Sound: ON</button>
+    </div>
+    <div class="instructions">Use W/S or Up/Down arrows to move your paddle</div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('game');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(800, 600);
+    renderer.setClearColor(0x000033, 1);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, 800/600, 0.1, 1000);
+    camera.position.z = 15;
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+
+    // Game objects
+    const paddleGeometry = new THREE.BoxGeometry(0.5, 4, 1);
+    const playerPaddle = new THREE.Mesh(paddleGeometry, new THREE.MeshPhongMaterial({ color: 0x00ff00 }));
+    playerPaddle.position.x = -12;
+    scene.add(playerPaddle);
+
+    const computerPaddle = new THREE.Mesh(paddleGeometry, new THREE.MeshPhongMaterial({ color: 0xff0000 }));
+    computerPaddle.position.x = 12;
+    scene.add(computerPaddle);
+
+    const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+    const ball = new THREE.Mesh(ballGeometry, new THREE.MeshPhongMaterial({ color: 0xffffff }));
+    scene.add(ball);
+
+    // Game state
+    let gameRunning = false;
+    let playerScore = 0;
+    let computerScore = 0;
+    let ballVelocity = new THREE.Vector3(0.1, 0.05, 0);
+
+    // Controls
+    const keys = { w: false, s: false, ArrowUp: false, ArrowDown: false };
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key in keys) keys[e.key] = true;
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (e.key in keys) keys[e.key] = false;
+    });
+
+    // Game functions
+    function resetBall() {
+        ball.position.set(0, 0, 0);
+        ballVelocity.set(Math.random() > 0.5 ? 0.1 : -0.1, (Math.random() - 0.5) * 0.1, 0);
+    }
+
+    function updatePaddles() {
+        const speed = 0.2;
+
+        // Player paddle
+        if ((keys.w || keys.ArrowUp) && playerPaddle.position.y < 6) {
+            playerPaddle.position.y += speed;
+        }
+        if ((keys.s || keys.ArrowDown) && playerPaddle.position.y > -6) {
+            playerPaddle.position.y -= speed;
+        }
+
+        // Computer paddle (AI)
+        const aiSpeed = 0.15;
+        if (computerPaddle.position.y < ball.position.y && computerPaddle.position.y < 6) {
+            computerPaddle.position.y += aiSpeed;
+        }
+        if (computerPaddle.position.y > ball.position.y && computerPaddle.position.y > -6) {
+            computerPaddle.position.y -= aiSpeed;
+        }
+    }
+
+    function updateBall() {
+        if (!gameRunning) return;
+
+        ball.position.add(ballVelocity);
+
+        // Wall bouncing
+        if (ball.position.y > 7 || ball.position.y < -7) {
+            ballVelocity.y = -ballVelocity.y;
+        }
+
+        // Paddle collision
+        if (ball.position.x < -11 && ball.position.x > -13 &&
+            ball.position.y < playerPaddle.position.y + 2 &&
+            ball.position.y > playerPaddle.position.y - 2) {
+            ballVelocity.x = -ballVelocity.x * 1.05;
+        }
+
+        if (ball.position.x > 11 && ball.position.x < 13 &&
+            ball.position.y < computerPaddle.position.y + 2 &&
+            ball.position.y > computerPaddle.position.y - 2) {
+            ballVelocity.x = -ballVelocity.x * 1.05;
+        }
+
+        // Scoring
+        if (ball.position.x < -15) {
+            computerScore++;
+            document.getElementById('computer-score').textContent = computerScore;
+            resetBall();
+        }
+        if (ball.position.x > 15) {
+            playerScore++;
+            document.getElementById('player-score').textContent = playerScore;
+            resetBall();
+        }
+    }
+
+    // Game loop
+    function animate() {
+        requestAnimationFrame(animate);
+
+        updatePaddles();
+        updateBall();
+
+        ball.rotation.x += 0.1;
+        ball.rotation.y += 0.1;
+
+        renderer.render(scene, camera);
+    }
+
+    // Controls
+    document.getElementById('start-btn').addEventListener('click', () => {
+        gameRunning = !gameRunning;
+        if (gameRunning) {
+            resetBall();
+            document.getElementById('start-btn').textContent = 'Stop Game';
+        } else {
+            document.getElementById('start-btn').textContent = 'Start Game';
+        }
+    });
+
+    resetBall();
+    animate();
+});
+    </script>
+</body>
+</html>

@@ -1,10 +1,8 @@
-# Simple direct file deployment
+# Simple working game deployment
 FROM nginx:alpine
 
-# Copy all source files directly (no build process)
-COPY index.html /usr/share/nginx/html/
-COPY style.css /usr/share/nginx/html/
-COPY script.js /usr/share/nginx/html/
+# Copy simple working HTML file
+COPY simple.html /usr/share/nginx/html/index.html
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
